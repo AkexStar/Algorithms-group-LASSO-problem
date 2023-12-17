@@ -7,10 +7,10 @@ import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='Test_group_lasso', description='测试不同的求解器进行group lasso求解')
-    parser.add_argument('--solvers', '-S',nargs='+', default=['gl_cvx_gurobi', 'gl_cvx_mosek'], help='solver name, all for all solvers')
-    parser.add_argument('--mu', default=1e-2, type=float, help='mu')
-    parser.add_argument('--seed', '-RS', default=97108120, type=int, help='random seed') # seed = ord("a") ord("l") ord("x")
-    parser.add_argument('--plot', '-P', action='store_false', help='plot curve')
+    parser.add_argument('--solvers', '-S', nargs='+', default=['gl_cvx_gurobi', 'gl_cvx_mosek'], help='指定求解器名称, 输入`all` 可以测试本项目中所有的求解器函数。默认填充为 `[\'gl_cvx_gurobi\', \'gl_cvx_mosek\']` 这两个求解器。')
+    parser.add_argument('--mu', default=1e-2, type=float, help='正则项的系数mu。默认为0.01。')
+    parser.add_argument('--seed', '-RS', default=97108120, type=int, help='指定测试数据的随机数种子。默认为97108120，为 `alx` 的ASCII码依次排列。') # seed = ord("a") ord("l") ord("x")
+    parser.add_argument('--plot', '-P', action='store_true', help='表明是否绘制迭代曲线，如果增加此参数，则绘制。')
     args = parser.parse_args()
 
     if len(args.solvers) == 1 and str.lower(args.solvers[0]) == 'all':
