@@ -1,6 +1,6 @@
 import numpy as np
 import cvxpy as cp
-import utils
+import code.utils as utils
 
 def gl_cvx_mosek(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu: float, opts={}):
     X = cp.Variable(shape=(A.shape[1], b.shape[1]))
@@ -10,7 +10,7 @@ def gl_cvx_mosek(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu: float, opts={
     objective = cp.Minimize(0.5 * cp.square(cp.norm(A @ X - b, 'fro')) + mu * cp.sum(cp.norm(X, 2, 1)))
     problem = cp.Problem(objective)
     problem.solve(solver=cp.MOSEK, verbose=True)
-    with open('./logs/gl_cvx.log', 'r', encoding='utf-8') as f:
+    with open(utils.cvxLogsName, 'r', encoding='utf-8') as f:
         logs = f.read()
     iters = utils.parse_iters(logs, 'MOSEK')
 
