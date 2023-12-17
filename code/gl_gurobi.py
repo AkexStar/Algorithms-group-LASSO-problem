@@ -1,6 +1,6 @@
 import gurobipy as gp
 import numpy as np
-import utils
+import code.utils as utils
 
 def gl_gurobi(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu: float, opts={}):
     m, n = A.shape
@@ -17,11 +17,11 @@ def gl_gurobi(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu: float, opts={}):
         model.addConstr(X[i, :] @ X[i, :] <= ts[i] * ts[i])
     model.setObjective(0.5 * sum([Y[:, j] @ Y[:, j] for j in range(l)]) + mu * sum(ts), gp.GRB.MINIMIZE)
     model.optimize()
-    with open('./logs/gl_cvx.log', 'r', encoding='utf-8') as f:
+    with open(utils.cvxLogsName, 'r', encoding='utf-8') as f:
         logs = f.read()
     iters = utils.parse_iters(logs, 'GUROBI')
 
-    utils.logger.info(f"#######==Solver: cvx(MOSEK)==#######")
+    utils.logger.info(f"#######==Solver: cvx(GUROBI)==#######")
     utils.logger.info(f"Objective value: {model.objVal}")
     utils.logger.info(f"Status: {model.status}")
     # utils.logger.info(f"Solver status: {model.solver_stats}")
