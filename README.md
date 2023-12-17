@@ -1,6 +1,6 @@
 # <div align=center>🎚️<br>Group-LASSO-problem 算法作业</div>
 
-<div align=center>本项目为 2023 年PKU秋季学期【最优化方法】课程的编程作业</div>
+本项目为 2023 年PKU秋季学期【最优化方法】课程的编程作业
 
 相关的课程信息链接如下：[课程页面](http://faculty.bicmr.pku.edu.cn/~wenzw/opt-2023-fall.html)、[作业描述](http://faculty.bicmr.pku.edu.cn/~wenzw/opt2015/homework5g.pdf)、[提交要求](http://faculty.bicmr.pku.edu.cn/~wenzw/opt2015/homework5-req.pdf)，后两个文件在项目 `/doc` 路径下有pdf版本。
 
