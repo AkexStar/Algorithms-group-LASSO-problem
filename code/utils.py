@@ -35,14 +35,15 @@ def loggerInit(name: str = None):
         os.makedirs(current_work_dir+'/logs')
     now = time.strftime("%m%d-%H%M%S",time.localtime(time.time()))
     loggerName = current_work_dir+f'/logs/{name}-{now}.log'
+    cvxLogsName = current_work_dir+f'/logs/gl_cvx.log'
     logging.basicConfig(filename = loggerName,
                         level = logging.INFO,
                         encoding='utf-8',
                         format = '[%(asctime)s] %(filename)s: %(funcName)s: %(levelname)s: %(message)s')
     logger.info(f"日志文件保存在: {current_work_dir}\logs\{name}-{now}.log")
-    return logger, loggerName
+    return logger, loggerName, cvxLogsName
 
-logger, loggerName = loggerInit('utils')
+logger, loggerName, cvxLogsName = loggerInit('utils')
 
 # 重定向stdout
 class RedirectStdStreams(object):
@@ -72,7 +73,7 @@ reg_solver = {
 }
 
 def cleanUpLog():
-    with open(r'./logs/gl_cvx.log','w+',encoding='utf-8') as test:
+    with open(cvxLogsName,'w+',encoding='utf-8') as test:
         test.truncate(0)
         for line in test.readlines():
             line.replace(r'\0', '')
