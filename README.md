@@ -1,6 +1,7 @@
 # <div align=center>🎚️<br>Group-LASSO-problem 算法作业</div>
 
-本项目为 2023 年秋季学期【最优化方法】课程的编程作业。
+<div align=center>本项目为 2023 年PKU秋季学期【最优化方法】课程的编程作业</div>
+
 相关的课程信息链接如下：[课程页面](http://faculty.bicmr.pku.edu.cn/~wenzw/opt-2023-fall.html)、[作业描述](http://faculty.bicmr.pku.edu.cn/~wenzw/opt2015/homework5g.pdf)、[提交要求](http://faculty.bicmr.pku.edu.cn/~wenzw/opt2015/homework5-req.pdf)，后两个文件在项目 `/doc` 路径下有pdf版本。
 
 ## 代码运行
@@ -46,7 +47,7 @@ python Test_group_lasso.py -S all
 
 本项目使用 `conda` 管理环境，使用 `conda create -n glp python=3.9` 创建环境，使用 `conda activate glp` 激活环境，使用 `conda deactivate` 退出环境。
 
-项目可以使用 `conda` 或者 `pip` 安装依赖，但是 `mosek` 和 `gurobipy` 需要配置许可证书，具体方法参考官方文档[【Mosek installation】](https://docs.mosek.com/latest/install/installation.html)和[【gurobipy installation】](https://support.gurobi.com/hc/en-us/articles/360044290292)。
+项目可以使用 `conda` 或者 `pip` 安装各项依赖包，但是其中 `mosek` 和 `gurobipy` 需要配置许可证书，具体方法参考官方文档【[Mosek installation](https://docs.mosek.com/latest/install/installation.html)】和【[gurobipy installation](https://support.gurobi.com/hc/en-us/articles/360044290292)】。
 
 ## 参考资料
 
