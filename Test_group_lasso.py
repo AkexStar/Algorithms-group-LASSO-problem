@@ -10,14 +10,15 @@ if __name__ == '__main__':
     parser.add_argument('--solvers', '-S',nargs='+', default=['gl_cvx_gurobi', 'gl_cvx_mosek'], help='solver name, all for all solvers')
     parser.add_argument('--mu', default=1e-2, type=float, help='mu')
     parser.add_argument('--seed', '-RS', default=97108120, type=int, help='random seed') # seed = ord("a") ord("l") ord("x")
-    parser.add_argument('--plot', '-P', action='store_true', help='plot curve')
+    parser.add_argument('--plot', '-P', action='store_false', help='plot curve')
     args = parser.parse_args()
 
     if len(args.solvers) == 1 and str.lower(args.solvers[0]) == 'all':
         args.solvers = [
-            # 'gl_cvx_gurobi',
-            # 'gl_cvx_mosek',
-            'gl_gurobi', 
+            'gl_cvx_gurobi',
+            'gl_cvx_mosek',
+            'gl_gurobi',
+            'gl_mosek',
             # 'gl_ADMM_dual',
             # 'gl_ADMM_primal_direct', 
             # 'gl_ADMM_primal',
@@ -31,9 +32,7 @@ if __name__ == '__main__':
             # 'gl_SGD_primal_normal_sgd',
             # 'gl_GD_primal', 
             # 'gl_GD_primal_normal_gd',
-            
             # 'gl_gurobi_term',
-            # 'gl_mosek',
         ]
 
     # 初始化测试数据
@@ -43,10 +42,10 @@ if __name__ == '__main__':
     utils.logger.info(f"random seed: {args.seed}")
     utils.logger.info(f"is_plot: {args.plot}")
     tab = []
-    with open('./logs/gl_cvx.log', "w", encoding='utf-8') as devlog, utils.RedirectStdStreams(stdout=devlog, stderr=devlog):
+    with open(utils.cvxLogsName, "w", encoding='utf-8') as devlog, utils.RedirectStdStreams(stdout=devlog, stderr=devlog):
         for solver_name in args.solvers:
-            utils.logger.info(f"Current Test Solver: {solver_name}")
-            solver = getattr(importlib.import_module(solver_name), solver_name)
+            utils.logger.info(f"\n--->Current Test Solver: {solver_name}<---")
+            solver = getattr(importlib.import_module("code." + solver_name), solver_name)
             tic = time.time()
             x, iters_N, out = solver(x0.copy(), A, b, mu) 
             toc = time.time()
