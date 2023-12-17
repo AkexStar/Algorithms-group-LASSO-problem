@@ -1,4 +1,4 @@
-# <div align=center>🎚️<br>Group-LASSO-problem 算法作业</div>
+# `<div align=center>`🎚️`<br>`Group-LASSO-problem 算法作业`</div>`
 
 本项目为 2023 年PKU秋季学期【最优化方法】课程的编程作业
 
@@ -13,10 +13,11 @@ python Test_group_lasso.py -S all
 ```
 
 可以使用 `python Test_group_lasso.py -h` 查看帮助信息：
+
 - `--solver` `-S` 可以指定某个求解器，默认为 `['gl_cvx_gurobi', 'gl_cvx_mosek']` 这两个求解器，也可以指定 `all` 运行所有求解器。
 - `-mu` 可以指定 `mu` 的值，默认为 `1e-2`。
 - `-seed` `-RS` 可以指定随机种子，默认为 `97108120`。
-- `--plot` `-P` 可以指定是否绘制图像，默认为 `True`。
+- `--plot` `-P` 用于指定是否绘制图像，默认为不绘制。
 
 ## 求解器函数说明
 
@@ -25,8 +26,10 @@ python Test_group_lasso.py -S all
 ```python
 [x, iter, out] = gl_cvx_mosek(x0, A, b, mu, opts)
 ```
+
 输入分别为给定的初始解 `x0` ，而 `A` 、 `b` 、 `mu` 是给定的数据。
 输出 `x` 为算法求解出的解，`iter` 为输出为 `x` 时所对应的算法迭代次数。 `out` 为算法输出的其他信息，是一个字典结构，包含以下内容：
+
 - `out['status']` 为算法求解状态，可以为 `optimal` 、 `infeasible` 、 `unbounded` 、 `other` 。
 - `out['obj']` 为算法求解出的目标函数值。
 - `out['iters']` 为算法每一步迭代的目标函数值与迭代号的组合列表。
