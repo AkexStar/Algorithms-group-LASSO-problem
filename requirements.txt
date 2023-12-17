@@ -1,0 +1,6 @@
+Mosek
+gurobipy
+cvxopt
+cvxpy
+matplotlib
+tabulate
