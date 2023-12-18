@@ -34,6 +34,6 @@ def gl_mosek(x0, A, b, mu, opts={}):
         utils.logger.info(f"#######==END of Logs:==#######")
         utils.logger.info(f"iters after parse:\n{iters}")
         # 最优解，迭代次数，{iters每次迭代目标函数值情况，cpu_time求解时间；obj目标函数值}
-        out = {'iters': iters, 'obj': M.primalObjValue()}
+        out = {'iters': iters, 'fval': M.primalObjValue()}
         return M.getVariable('X').level().reshape(n ,l), len(iters), out
 

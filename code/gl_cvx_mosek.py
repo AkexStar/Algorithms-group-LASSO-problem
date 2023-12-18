@@ -22,5 +22,5 @@ def gl_cvx_mosek(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu: float, opts={
     utils.logger.info(f"#######==END of Logs:==#######")
     utils.logger.info(f"iters after parse:\n{iters}")
     # 最优解，迭代次数，{iters每次迭代目标函数值情况，cpu_time求解时间；obj目标函数值}
-    out = {'iters': iters, 'obj': problem.value}
+    out = {'iters': iters, 'fval': problem.value}
     return X.value, len(iters), out

@@ -2,6 +2,7 @@ import code.utils as utils
 import time
 import importlib
 import argparse
+import copy
 from tabulate import tabulate
 import matplotlib.pyplot as plt
 import numpy as np
@@ -59,14 +60,14 @@ if __name__ == '__main__':
             utils.logger.info(f"\n--->Current Test Solver: {solver_name}<---")
             solver = getattr(importlib.import_module("code." + solver_name), solver_name)
             tic = time.time()
-            x, iters_N, out = solver(x0.copy(), A, b, mu) 
+            x, iters_N, out = solver(copy.deepcopy(x0), A, b, mu, None) 
             toc = time.time()
             time_cpu = toc - tic
             utils.logger.info(f"Current Solver takes {time_cpu:.5f}s, with {iters_N} iters")
 
-            obj = out['obj']
+            fval = out['fval']
             iters = out['iters']
-            err_x_u = utils.errFun(x, u)
+            err_x_u = utils.errX(x, u)
             sparsity_x = utils.sparsity(x)
             if iters_N == 0:
                 utils.logger.error(f"求解器{solver_name}的记录迭代次数为0，跳过该求解器。需要检查日志文件{utils.cvxLogsName}")
@@ -77,13 +78,13 @@ if __name__ == '__main__':
             if args.plot:
                 plt.plot(x, y, '*-', label=(solver_name[3:] + " in " + str(iters_N) + " iters"))
                 utils.logger.info(f"Plot curve for {solver_name}")
-            tab.append([solver_name[3:], obj, err_x_u, time_cpu, iters_N, sparsity_x])
+            tab.append([solver_name[3:], fval, utils.errObj(fval, f_u), err_x_u, time_cpu, iters_N, sparsity_x])
             utils.cleanUpLog()
 
     utils.logger.info(f"\n#######==ALL solvers have finished==#######")
     utils.logger.info(f"问题精确解的目标函数值f_u: {f_u}")
     utils.logger.info(f"问题精确解的稀疏度sparsity_u: {sparsity_u}")
-    utils.logger.info("\n"+tabulate(tab, headers=['Solver', 'Objective', 'x_u_Error', 'Time(s)', 'Iter', 'Sparsity']))
+    utils.logger.info("\n"+tabulate(tab, headers=['Solver', 'Objective', 'Obj_ABS_Error', 'x_u_Error', 'Time(s)', 'Iter', 'Sparsity']))
     if args.plot:
         plt.yscale('log')
         plt.legend()

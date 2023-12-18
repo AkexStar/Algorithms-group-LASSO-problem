@@ -29,5 +29,5 @@ def gl_gurobi(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu: float, opts={}):
     utils.logger.info(f"#######==END of Logs:==#######")
     utils.logger.info(f"iters after parse:\n{iters}")
     # 最优解，迭代次数，{iters每次迭代目标函数值情况，cpu_time求解时间；obj目标函数值}
-    out = {'iters': iters, 'obj': model.objVal}
+    out = {'iters': iters, 'fval': model.objVal}
     return X.x, len(iters), out
