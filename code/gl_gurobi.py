@@ -21,7 +21,7 @@ def gl_gurobi(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu: float, opts={}):
         logs = f.read()
     iters = utils.parse_iters(logs, 'GUROBI')
 
-    utils.logger.info(f"#######==Solver: cvx(GUROBI)==#######")
+    utils.logger.info(f"#######==Solver: GUROBIPY==#######")
     utils.logger.info(f"Objective value: {model.objVal}")
     utils.logger.info(f"Status: {model.status}")
     # utils.logger.info(f"Solver status: {model.solver_stats}")

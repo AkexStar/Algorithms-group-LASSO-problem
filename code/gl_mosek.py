@@ -26,7 +26,7 @@ def gl_mosek(x0, A, b, mu, opts={}):
             logs = f.read()
         iters = utils.parse_iters(logs, 'MOSEK_OLD')
 
-        utils.logger.info(f"#######==Solver: cvx(MOSEK)==#######")
+        utils.logger.info(f"#######==Solver: MOSEK==#######")
         utils.logger.info(f"Objective value: {M.primalObjValue()}")
         # utils.logger.info(f"Status: {M.getSolverIntInfo(' ')}")
         # utils.logger.info(f"Solver status: {model.solver_stats}")
