@@ -20,6 +20,27 @@ python Test_group_lasso.py -S all -P
 - `--plot` `-P` 用于指定是否绘制图像，默认为不绘制。
 - `--info` `-L` 用于指定日志输出级别，默认为 `INFO`
 
+如果要进行调试，使用vs code时建议使用以下配置launch.json：
+
+```json
+{
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "stopOnEntry": false,
+            "python": "${command:python.interpreterPath}",
+            "program": "${file}",
+            "cwd": "${workspaceRoot}",
+            "env": {
+                "PYTHONPATH": "${workspaceRoot}"
+            },
+        }
+    ]
+}
+```
+
 ## 求解器函数说明
 
 在本项目中，每个求解器的脚本名与函数名相同，脚本名称均为 `gl_*.py` 格式，函数名称均为 `gl_*()` 格式。一个样例函数接口形式如下：
