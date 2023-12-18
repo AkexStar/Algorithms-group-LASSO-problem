@@ -88,8 +88,9 @@ def parse_iters(s, solver=None):
     return ret
 
 def sparsity(x):
-    # return np.sum(np.abs(x) > 1e-5) / x.size
-    return np.sum(x <= 1e-5) / np.sum(np.ones_like(x))
+    logger.info(f"x.size: {x.size}")
+    return np.sum(np.abs(x) > 1e-6 * np.max(np.abs(x))) / x.size
+    # return np.sum(x <= 1e-5) / np.sum(np.ones_like(x))
 
 def errFun(x, x0):
     # return np.linalg.norm(x - u, ord='fro')
