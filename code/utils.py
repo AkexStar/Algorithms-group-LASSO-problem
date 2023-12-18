@@ -96,29 +96,26 @@ def errFun(x, x0):
     # return np.linalg.norm(u - x, 'fro') / np.linalg.norm(u)
     return np.linalg.norm(x - x0, 'fro') / (1 + np.linalg.norm(x0, 'fro'))
 
-def testData(**opts):
-    if "seed" in opts:
-        seed = opts["seed"]
-    else:
-        seed: int = 97108120 # seed = ord("a") ord("l") ord("x")
-    if "mu" in opts:
-        mu = opts["mu"]
-    else:
-        mu = 1e-2
-    np.random.seed(seed)
-    n = 512
-    m = 256
-    A = np.random.randn(m, n)
-    k = round(n * 0.1)
-    l = 2
-    p = np.random.permutation(n)[:k]
-    u = np.zeros((n, l))
-    u[p, :] = np.random.randn(k, l)
-    b = A @ u
-    # x0 = np.random.rand(n, l)
-    # x0 = u + np.random.rand(n, l) * 0.001
-    # x0 = np.zeros((n, l))
-    x0 = np.random.randn(n, l)
-    f_u = 0.5 * np.linalg.norm(A @ u - b, ord='fro') ** 2 + mu * np.sum(np.linalg.norm(u, ord=2, axis=1))
-    sparsity_u = sparsity(u)
-    return x0, A, b, mu, u, f_u, sparsity_u
+def objFun(x, A, b, mu):
+    return 0.5 * np.linalg.norm(A @ x - b, ord='fro') ** 2 + mu * np.sum(np.linalg.norm(x, ord=2, axis=1))
+
+solversCollection = [
+    'gl_cvx_gurobi',
+    'gl_cvx_mosek',
+    'gl_gurobi',
+    'gl_mosek',
+    # 'gl_SGD_primal', 
+    # 'gl_ADMM_dual',
+    # 'gl_ADMM_primal_direct', 
+    # 'gl_ADMM_primal',
+    # 'gl_FGD_primal', 
+    # 'gl_FGD_primal_line_search',
+    # 'gl_ProxGD_primal', 
+    # 'gl_ProxGD_primal_line_search',
+    # 'gl_FProxGD_primal', 
+    # 'gl_FProxGD_primal_line_search',
+    # 'gl_SGD_primal_normal_sgd',
+    # 'gl_GD_primal', 
+    # 'gl_GD_primal_normal_gd',
+    # 'gl_gurobi_term',
+]
