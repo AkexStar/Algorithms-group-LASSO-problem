@@ -1,4 +1,4 @@
-import code.utils as utils
+import src.utils as utils
 import time
 import importlib
 import argparse
@@ -7,13 +7,14 @@ from tabulate import tabulate
 import matplotlib.pyplot as plt
 import numpy as np
 
-def testData(**opts):
+def testData(opts):
+    utils.logger.info(f"testData opts: {opts}")
     seed = opts.get("seed", 97108120) # seed = ord("a") ord("l") ord("x")
     mu = opts.get("mu", 1e-2)
     n = opts.get("n", 512)
     m = opts.get("m", 256)
     l = opts.get("l", 2)
-    r = opts.get("r", 0.1)
+    r = opts.get("r", 1e-1)
     np.random.seed(seed)
     A = np.random.randn(m, n)
     k = round(n * r)
@@ -48,8 +49,10 @@ if __name__ == '__main__':
     utils.logger.setLevel(args.log)
 
     # 初始化测试数据
-    x0, A, b, mu, u, f_u, sparsity_u = testData(seed=args.seed, mu=args.mu)
-    
+    x0, A, b, mu, u, f_u, sparsity_u = testData({'seed':args.seed, 'mu':args.mu})
+    utils.logger.info(f"问题精确解的目标函数值f_u: {f_u}")
+    utils.logger.info(f"问题精确解的稀疏度sparsity_u: {sparsity_u}")
+
     # 测试结果表格
     tab = []
 
@@ -58,7 +61,7 @@ if __name__ == '__main__':
         # 遍历测试每个求解器
         for solver_name in args.solvers:
             utils.logger.info(f"\n--->Current Test Solver: {solver_name}<---")
-            solver = getattr(importlib.import_module("code." + solver_name), solver_name)
+            solver = getattr(importlib.import_module("src." + solver_name), solver_name)
             tic = time.time()
             x, iters_N, out = solver(copy.deepcopy(x0), A, b, mu, None) 
             toc = time.time()
@@ -67,16 +70,21 @@ if __name__ == '__main__':
 
             fval = out['fval']
             iters = out['iters']
+            utils.logger.info(f"iters: {iters}")
+            utils.logger.info(f"fval: {fval}")
+            utils.logger.info(f"x.shape: {x.shape}")
             err_x_u = utils.errX(x, u)
             sparsity_x = utils.sparsity(x)
             if iters_N == 0:
                 utils.logger.error(f"求解器{solver_name}的记录迭代次数为0，跳过该求解器。需要检查日志文件{utils.cvxLogsName}")
                 continue
             x, y = zip(*iters)
+            utils.logger.info(f"len(x)={len(x)}")
+            utils.logger.info(f"len(y)={len(y)}")
             if y[0]<0: # 使用mosek求解时，会出现y[0]为负数的情况，这里将其去除
                 x = x[1:]; y = y[1:]
             if args.plot:
-                plt.plot(x, y, '*-', label=(solver_name[3:] + " in " + str(iters_N) + " iters"))
+                plt.plot(x, y, '.-', label=(solver_name[3:] + " in " + str(iters_N) + " iters"))
                 utils.logger.info(f"Plot curve for {solver_name}")
             tab.append([solver_name[3:], fval, utils.errObj(fval, f_u), err_x_u, time_cpu, iters_N, sparsity_x])
             utils.cleanUpLog()
