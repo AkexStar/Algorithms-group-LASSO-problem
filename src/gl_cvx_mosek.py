@@ -1,6 +1,6 @@
 import numpy as np
 import cvxpy as cp
-import code.utils as utils
+import src.utils as utils
 
 def gl_cvx_mosek(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu: float, opts={}):
     X = cp.Variable(shape=(A.shape[1], b.shape[1]))
@@ -14,13 +14,13 @@ def gl_cvx_mosek(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu: float, opts={
         logs = f.read()
     iters = utils.parse_iters(logs, 'MOSEK')
 
-    utils.logger.info(f"#######==Solver: cvx(MOSEK)==#######")
-    utils.logger.info(f"Objective value: {problem.value}")
-    utils.logger.info(f"Status: {problem.status}")
-    utils.logger.info(f"Solver status: {problem.solver_stats}")
-    utils.logger.info(f"#######==CVXPY's Logs:==#######\n{logs}")
-    utils.logger.info(f"#######==END of Logs:==#######")
-    utils.logger.info(f"iters after parse:\n{iters}")
+    utils.logger.debug(f"#######==Solver: cvx(MOSEK)==#######")
+    utils.logger.debug(f"Objective value: {problem.value}")
+    utils.logger.debug(f"Status: {problem.status}")
+    utils.logger.debug(f"Solver status: {problem.solver_stats}")
+    utils.logger.debug(f"#######==CVXPY's Logs:==#######\n{logs}")
+    utils.logger.debug(f"#######==END of Logs:==#######")
+    utils.logger.debug(f"iters after parse:\n{iters}")
     # 最优解，迭代次数，{iters每次迭代目标函数值情况，cpu_time求解时间；obj目标函数值}
     out = {'iters': iters, 'fval': problem.value}
     return X.value, len(iters), out

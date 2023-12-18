@@ -1,6 +1,6 @@
 import gurobipy as gp
 import numpy as np
-import code.utils as utils
+import src.utils as utils
 
 def gl_gurobi(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu: float, opts={}):
     m, n = A.shape
@@ -21,13 +21,13 @@ def gl_gurobi(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu: float, opts={}):
         logs = f.read()
     iters = utils.parse_iters(logs, 'GUROBI')
 
-    utils.logger.info(f"#######==Solver: GUROBIPY==#######")
-    utils.logger.info(f"Objective value: {model.objVal}")
-    utils.logger.info(f"Status: {model.status}")
-    # utils.logger.info(f"Solver status: {model.solver_stats}")
-    utils.logger.info(f"#######==CVXPY's Logs:==#######\n{logs}")
-    utils.logger.info(f"#######==END of Logs:==#######")
-    utils.logger.info(f"iters after parse:\n{iters}")
+    utils.logger.debug(f"#######==Solver: GUROBIPY==#######")
+    utils.logger.debug(f"Objective value: {model.objVal}")
+    utils.logger.debug(f"Status: {model.status}")
+    # utils.logger.debug(f"Solver status: {model.solver_stats}")
+    utils.logger.debug(f"#######==CVXPY's Logs:==#######\n{logs}")
+    utils.logger.debug(f"#######==END of Logs:==#######")
+    utils.logger.debug(f"iters after parse:\n{iters}")
     # 最优解，迭代次数，{iters每次迭代目标函数值情况，cpu_time求解时间；obj目标函数值}
     out = {'iters': iters, 'fval': model.objVal}
     return X.x, len(iters), out

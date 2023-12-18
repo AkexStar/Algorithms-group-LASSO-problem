@@ -1,9 +1,9 @@
 from mosek.fusion import *
 import sys
-import code.utils as utils
+import src.utils as utils
 
 def gl_mosek(x0, A, b, mu, opts={}):
-    utils.logger.info('Note: for mosek, x0 is ignored')
+    utils.logger.debug('Note: for mosek, x0 is ignored')
     m, n = A.shape
     l = b.shape[1]
     with Model('gl_mosek') as M:
@@ -26,13 +26,13 @@ def gl_mosek(x0, A, b, mu, opts={}):
             logs = f.read()
         iters = utils.parse_iters(logs, 'MOSEK_OLD')
 
-        utils.logger.info(f"#######==Solver: MOSEK==#######")
-        utils.logger.info(f"Objective value: {M.primalObjValue()}")
-        # utils.logger.info(f"Status: {M.getSolverIntInfo(' ')}")
-        # utils.logger.info(f"Solver status: {model.solver_stats}")
-        utils.logger.info(f"#######==CVXPY's Logs:==#######\n{logs}")
-        utils.logger.info(f"#######==END of Logs:==#######")
-        utils.logger.info(f"iters after parse:\n{iters}")
+        utils.logger.debug(f"#######==Solver: MOSEK==#######")
+        utils.logger.debug(f"Objective value: {M.primalObjValue()}")
+        # utils.logger.debug(f"Status: {M.getSolverIntInfo(' ')}")
+        # utils.logger.debug(f"Solver status: {model.solver_stats}")
+        utils.logger.debug(f"#######==CVXPY's Logs:==#######\n{logs}")
+        utils.logger.debug(f"#######==END of Logs:==#######")
+        utils.logger.debug(f"iters after parse:\n{iters}")
         # 最优解，迭代次数，{iters每次迭代目标函数值情况，cpu_time求解时间；obj目标函数值}
         out = {'iters': iters, 'fval': M.primalObjValue()}
         return M.getVariable('X').level().reshape(n ,l), len(iters), out
