@@ -1,4 +1,4 @@
-# `<div align=center>`🎚️`<br>`Group-LASSO-problem 算法作业 `</div>`
+# <div align=center>🎚️<br>Group-LASSO-problem 优化算法作业 </div>
 
 本项目为 2023 年PKU秋季学期【最优化方法】课程的编程作业
 
@@ -54,7 +54,7 @@ python Test_group_lasso.py -S all -P
 
 - `out['fval']` 为算法求解出的目标函数值。
 - `out['iters']` 为算法每一步迭代的目标函数值与迭代号的zip组合列表。
-- 自行编写的求解器具有更多记录信息
+- 上述两项为调用mosek和gurobi的输出信息，主要从求解器的日志输出中用正则表达式爬取。而自行编写的求解器则除上述两项外具有更多记录信息。
 
 ## 软件环境版本
 
