@@ -1,4 +1,4 @@
-# `<div align=center>`🎚️`<br>`Group-LASSO-problem 算法作业`</div>`
+# `<div align=center>`🎚️`<br>`Group-LASSO-problem 算法作业 `</div>`
 
 本项目为 2023 年PKU秋季学期【最优化方法】课程的编程作业
 
@@ -9,7 +9,7 @@
 使用以下命令测试所有算法脚本，打印求解情况并绘制目标函数下降曲线：
 
 ```bash
-python Test_group_lasso.py -S all
+python Test_group_lasso.py -S all -P
 ```
 
 可以使用 `python Test_group_lasso.py -h` 查看帮助信息：
@@ -18,6 +18,7 @@ python Test_group_lasso.py -S all
 - `-mu` 可以指定 `mu` 的值，默认为 `1e-2`。
 - `-seed` `-RS` 可以指定随机种子，默认为 `97108120`。
 - `--plot` `-P` 用于指定是否绘制图像，默认为不绘制。
+- `--info` `-L` 用于指定日志输出级别，默认为 `INFO`
 
 ## 求解器函数说明
 
@@ -30,9 +31,9 @@ python Test_group_lasso.py -S all
 输入分别为给定的初始解 `x0` ，而 `A` 、 `b` 、 `mu` 是给定的数据。
 输出 `x` 为算法求解出的解，`iter` 为输出为 `x` 时所对应的算法迭代次数。 `out` 为算法输出的其他信息，是一个字典结构，包含以下内容：
 
-- `out['status']` 为算法求解状态，可以为 `optimal` 、 `infeasible` 、 `unbounded` 、 `other` 。
-- `out['obj']` 为算法求解出的目标函数值。
-- `out['iters']` 为算法每一步迭代的目标函数值与迭代号的组合列表。
+- `out['fval']` 为算法求解出的目标函数值。
+- `out['iters']` 为算法每一步迭代的目标函数值与迭代号的zip组合列表。
+- 自行编写的求解器具有更多记录信息
 
 ## 软件环境版本
 
