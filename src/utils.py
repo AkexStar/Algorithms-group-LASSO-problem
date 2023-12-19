@@ -141,13 +141,7 @@ solversCollection = [
     # 'gl_ADMM_primal_direct', 
     # 'gl_ADMM_primal',
     # 'gl_FGD_primal', 
-    # 'gl_FGD_primal_line_search',
-    # 'gl_ProxGD_primal_line_search',
-    # 'gl_FProxGD_primal_line_search',
-    # 'gl_SGD_primal_normal_sgd',
     # 'gl_GD_primal', 
-    # 'gl_GD_primal_normal_gd',
-    # 'gl_gurobi_term',
 ]
 
 def optsOuterInit(opts: dict):
