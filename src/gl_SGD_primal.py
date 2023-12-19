@@ -32,12 +32,12 @@ def gl_SGD_primal_inner(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu: float,
         gp = g
         xp = x
         out['g_hist'].append(nrmG)
-        out['f_hist'].append(f)
+        out['f_hist_inner'].append(f)
         # f_best = np.min([f_best, f])
         # utils.logger.debug(f"\tinner iter {k}: fval: {f}, f_best: {f_best}")
         # out['f_hist_best'].append(f_best)
 
-        if k > 2 and np.abs(out['f_hist'][k] - out['f_hist'][k-1]) < opts['ftol']:
+        if k > 2 and np.abs(out['f_hist_inner'][k] - out['f_hist_inner'][k-1]) < opts['ftol']:
             out['flag'] = True
             break
         
@@ -83,7 +83,7 @@ def gl_SGD_primal(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu: float, opts=
     opts['gtol'] = 1e-6
     opts['gtol_init_ratio'] = 1 / opts['gtol']
     opts['ftol'] = 1e-9
-    opts['ftol_init_ratio'] = 1e5
+    opts['ftol_init_ratio'] = 1e6
     opts['etaf'] = 0.1
     x, iter, out = utils.LASSO_group_con(x0, A, b, mu, opts)
     return x, iter, out

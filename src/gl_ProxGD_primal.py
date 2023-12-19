@@ -28,18 +28,18 @@ def gl_ProxGD_primal_inner(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu: flo
         xp = x
 
         out['g_hist'].append(nrmG)
-        out['f_hist'].append(f)
+        out['f_hist_inner'].append(f)
         f_best = np.min([f_best, f])
         out['f_hist_best'].append(f_best)
 
         utils.logger.debug(f"  inner iter {k}: fval: {f}, f_best: {f_best}")
         utils.logger.debug(f"\tabs(fval - f_best) = {np.abs(f - f_best)}")
         utils.logger.debug(f"\topts['ftol'] = {opts['ftol']}")
-        utils.logger.debug(f"\tout['f_hist'][k] - out['f_hist'][k-1] = {out['f_hist'][k] - out['f_hist'][k-1]}")
+        utils.logger.debug(f"\tout['f_hist_inner'][k] - out['f_hist_inner'][k-1] = {out['f_hist_inner'][k] - out['f_hist_inner'][k-1]}")
         utils.logger.debug(f"\topts['gtol'] = {opts['gtol']}")
         utils.logger.debug(f"\tout['g_hist'][k] = {out['g_hist'][k]}")
 
-        if k > 2 and np.abs(out['f_hist'][k] - out['f_hist'][k-1]) < opts['ftol'] and out['g_hist'][k] < opts['gtol']:
+        if k > 2 and np.abs(out['f_hist_inner'][k] - out['f_hist_inner'][k-1]) < opts['ftol'] and out['g_hist'][k] < opts['gtol']:
             out['flag'] = True
             break
 
