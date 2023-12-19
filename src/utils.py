@@ -163,8 +163,8 @@ def optsInnerInit(opts: dict):
     optsInner = {}
     optsOuter = optsOuterInit(opts)
     optsInner['maxit'] = optsOuter['maxit_inn'] # 内循环最大迭代次数 最大迭代次数，由 opts.maxit_inn 给出
-    optsInner['ftol'] = optsOuter['ftol'] * optsOuter['ftol_init_ratio'] # 针对函数值的停机判断条件 1e-5
-    optsInner['gtol'] = optsOuter['gtol'] * optsOuter['gtol_init_ratio'] # 针对梯度的停机判断条件 1
+    optsInner['ftol'] = optsOuter['ftol']# * optsOuter['ftol_init_ratio'] # 针对函数值的停机判断条件 1e-5
+    optsInner['gtol'] = optsOuter['gtol']# * optsOuter['gtol_init_ratio'] # 针对梯度的停机判断条件 1
     optsInner['alpha0'] = opts.get('alpha0', 1) #初始步长
     optsInner['mu0'] = opts.get('mu0', 1e-2) # 目标最小的mu0 便于连续化策略和内循环的求解器一起使用
     optsInner['gamma'] = opts.get('gamma', 0.85) # BB算法的参数
