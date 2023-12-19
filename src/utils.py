@@ -132,9 +132,9 @@ def BBupdate(x, xp, g, gp, k, alpha):
 solversCollection = [
     # 'gl_cvx_gurobi',
     # 'gl_cvx_mosek',
-    # 'gl_gurobi',
-    # 'gl_mosek',
-    # 'gl_SGD_primal',
+    'gl_gurobi',
+    'gl_mosek',
+    'gl_SGD_primal',
     'gl_ProxGD_primal',
     'gl_FProxGD_primal', 
     # 'gl_ADMM_dual',
@@ -154,17 +154,18 @@ def optsOuterInit(opts: dict):
     optsOuter = {}
     if opts is None:
         opts = {}
-    optsOuter['maxit'] = opts.get('maxit', 50) # 最大迭代次数
-    optsOuter['maxit_inn'] = opts.get('maxit_inn', 200) # 内循环最大迭代次数
-    optsOuter['ftol'] = opts.get('ftol', 1e-8) # 针对函数值的停机判断条件 当相对函数值变化或相对历史最佳函数值变化小于该值时认为满足
-    optsOuter['ftol_init_ratio'] = opts.get('ftol_init_ratio', 1e5) # 初始时停机准则 opts['ftol'] 的放大倍数
-    optsOuter['gtol'] = opts.get('gtol', 1e-6) # 针对梯度的停机判断条件
+    optsOuter['maxit'] = int(opts.get('maxit', 50)) # 最大迭代次数
+    optsOuter['maxit_inn'] = int(opts.get('maxit_inn', 200)) # 内循环最大迭代次数
+    optsOuter['ftol'] = float(opts.get('ftol', 1e-8)) # 针对函数值的停机判断条件 当相对函数值变化或相对历史最佳函数值变化小于该值时认为满足
+    optsOuter['ftol_init_ratio'] = float(opts.get('ftol_init_ratio', 1e5)) # 初始时停机准则 opts['ftol'] 的放大倍数
+    optsOuter['gtol'] = float(opts.get('gtol', 1e-6)) # 针对梯度的停机判断条件
     optsOuter['gtol_init_ratio'] = 1 / optsOuter['gtol'] # 初始时停机准则 opts['gtol'] 的放大倍数
-    optsOuter['factor'] = opts.get('factor', 0.1) # 正则化系数的衰减率
+    optsOuter['factor'] = float(opts.get('factor', 0.1)) # 正则化系数的衰减率
     # optsOuter['verbose'] = opts.get('verbose', False) # 是否打印每次迭代的信息
-    optsOuter['mu1'] = opts.get('mu1', 100) # 初始的正则化系数（采用连续化策略，从更大的正则化系数开始）
-    optsOuter['etaf'] = opts.get('etaf', 0.1) # 每步外层循环的停机判断标准 opts['ftol'] 的缩减
-    optsOuter['etag'] = opts.get('etag', 0.1) # 每步外层循环的停机判断标准 opts['gtol'] 的缩减
+    optsOuter['is_only_print_outer'] = bool(opts.get('is_only_print_outer', False)) # 是否只打印外循环的信息
+    optsOuter['mu1'] = float(opts.get('mu1', 10)) # 初始的正则化系数（采用连续化策略，从更大的正则化系数开始）
+    optsOuter['etaf'] = float(opts.get('etaf', 0.1)) # 每步外层循环的停机判断标准 opts['ftol'] 的缩减
+    optsOuter['etag'] = float(opts.get('etag', 0.1)) # 每步外层循环的停机判断标准 opts['gtol'] 的缩减
     optsOuter['method'] = opts.get('method', None) # 内循环使用的求解器
     # for key in opts.keys():
     #     if key not in optsOuter.keys():
@@ -173,16 +174,15 @@ def optsOuterInit(opts: dict):
 
 def optsInnerInit(opts: dict):
     optsInner = {}
-    optsOuter = optsOuterInit(opts)
-    optsInner['maxit_inn'] = optsOuter['maxit_inn'] # 内循环最大迭代次数 最大迭代次数，由 opts.maxit_inn 给出
-    optsInner['ftol'] = optsOuter['ftol']# 针对函数值的停机判断条件 
-    optsInner['gtol'] = optsOuter['gtol']# 针对梯度的停机判断条件
-    optsInner['alpha0'] = opts.get('alpha0', 1) #初始步长
-    optsInner['mu0'] = opts.get('mu0', 1e-2) # 目标最小的mu0 便于连续化策略和内循环的求解器一起使用
-    optsInner['gamma'] = opts.get('gamma', 0.9) # 
-    optsInner['rhols'] = opts.get('rhols', 1e-6) # 线搜索的参数
-    optsInner['eta'] = opts.get('eta', 0.2) # 线搜索的参数
-    optsInner['Q'] = opts.get('Q', 1) # 线搜索的参数
+    optsInner['maxit_inn'] = int(opts.get('maxit_inn', 200)) # 内循环最大迭代次数 最大迭代次数，由 opts.maxit_inn 给出
+    optsInner['ftol'] = float(opts.get('ftol', 1e-8)) # 针对函数值的停机判断条件 
+    optsInner['gtol'] = float(opts.get('gtol', 1e-6)) # 针对梯度的停机判断条件
+    optsInner['alpha0'] = float(opts.get('alpha0', 1)) #初始步长
+    optsInner['mu0'] = float(opts.get('mu0', 1e-2)) # 目标最小的mu0 便于连续化策略和内循环的求解器一起使用
+    optsInner['gamma'] = float(opts.get('gamma', 0.9)) # 
+    optsInner['rhols'] = float(opts.get('rhols', 1e-6)) # 线搜索的参数
+    optsInner['eta'] = float(opts.get('eta', 0.2)) # 线搜索的参数
+    optsInner['Q'] = float(opts.get('Q', 1)) # 线搜索的参数
     # for key in opts.keys():
     #     if key not in optsInner.keys():
     #         optsInner[key] = opts[key]
@@ -190,7 +190,8 @@ def optsInnerInit(opts: dict):
 
 def outInit():
     out = {}
-    out['f_hist'] = [] # 每一步迭代的当前目标函数值（对应于当前的 μt）
+    out['f_hist_outer'] = [] #  外循环每一次迭代的目标函数值
+    out['f_hist_inner'] = [] # 每一步迭代的当前目标函数值（对应于当前的 μt）
     out['f_hist_best'] = [] # 每一步迭代的当前目标函数历史最优值（对应于当前的 μt）
     out['g_hist'] = [] # 可微部分梯度范数的历史值
     out['itr'] = 0 # 外层迭代次数
@@ -234,10 +235,15 @@ def LASSO_group_con(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu0: float, op
         logger.info(f"optsInner['ftol']: {optsInner['ftol']}")
         logger.info(f"optsInner['gtol']: {optsInner['gtol']}")
         
+        # 启动内部求解器
+        if not callable(solver):
+            logger.error(f"optsOuter['method'] is not callable")
+            raise ValueError(f"optsOuter['method'] is not callable")
         fp = f
         x, itr_inn, outInner = solver(x, A, b, mu_t, optsInner)
-        f = outInner['f_hist'][-1]
-        outResult['f_hist'].extend(outInner['f_hist'])
+        f = outInner['f_hist_inner'][-1]
+        outResult['f_hist_inner'].extend(outInner['f_hist_inner'])
+        outResult['f_hist_outer'].append(f)
 
         r = np.matmul(A, x) - b
         # 由于L1-范数不可导 这里 nrmG 表示 LASSO 问题的最优性条件的违反度
@@ -266,10 +272,15 @@ def LASSO_group_con(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu0: float, op
     
     outResult['fval'] = f # 最终目标函数值
     outResult['itr'] = k + 1 # 外层循环迭代次数
-    logger.debug(f"len(outResult['f_hist']): {len(outResult['f_hist'])}")
+    logger.debug(f"len(outResult['f_hist_inner']): {len(outResult['f_hist_inner'])}")
     logger.debug(f"outResult['itr_inn']: {outResult['itr']}")
     logger.info(f"--->end of LASSO_group_con<---")
     # 如果舍去外循环最后一次迭代，zip会以更短的 outResult['itr_inn'] 为主
-    outResult['iters'] = zip(range(outResult['itr_inn']), outResult['f_hist'])
+    outResult['iters'] = zip(range(outResult['itr_inn']), outResult['f_hist_inner'])
+
+    if optsOuter['is_only_print_outer']:
+        outResult['iters'] = zip(range(outResult['itr']), outResult['f_hist_outer'])
+        return x, outResult['itr'], outResult
+
 
     return x, outResult['itr_inn'], outResult
