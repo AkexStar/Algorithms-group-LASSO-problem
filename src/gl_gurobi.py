@@ -28,6 +28,6 @@ def gl_gurobi(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu: float, opts={}):
     utils.logger.debug(f"#######==CVXPY's Logs:==#######\n{logs}")
     utils.logger.debug(f"#######==END of Logs:==#######")
     utils.logger.debug(f"iters after parse:\n{iters}")
-    # 最优解，迭代次数，{iters每次迭代目标函数值情况，cpu_time求解时间；obj目标函数值}
+    # 最优解, 迭代次数, 情况输出out={iters: 每次迭代目标函数值情况[(iter, fval), ...]; fval: 最终目标函数值}
     out = {'iters': iters, 'fval': model.objVal}
     return X.x, len(iters), out
