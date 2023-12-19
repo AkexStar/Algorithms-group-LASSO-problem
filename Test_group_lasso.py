@@ -71,17 +71,17 @@ if __name__ == '__main__':
 
             fval = out['fval']
             iters = out['iters']
-            utils.logger.info(f"iters: {iters}")
+            utils.logger.debug(f"iters: {iters}")
             utils.logger.info(f"fval: {fval}")
-            utils.logger.info(f"x.shape: {x.shape}")
+            utils.logger.debug(f"x.shape: {x.shape}")
             err_x_u = utils.errX(x, u)
             sparsity_x = utils.sparsity(x)
             if iters_N == 0:
                 utils.logger.error(f"求解器{solver_name}的记录迭代次数为0，跳过该求解器。需要检查日志文件{utils.cvxLogsName}")
                 continue
             x, y = zip(*iters)
-            utils.logger.info(f"len(x)={len(x)}")
-            utils.logger.info(f"len(y)={len(y)}")
+            utils.logger.debug(f"len(x)={len(x)}")
+            utils.logger.debug(f"len(y)={len(y)}")
             if y[0]<0: # 使用mosek求解时，会出现y[0]为负数的情况，这里将其去除
                 x = x[1:]; y = y[1:]
             if args.plot:
