@@ -92,7 +92,6 @@ def parse_iters(s, solver=None):
     return ret
 
 def sparsity(x):
-    logger.debug(f"another aparsity: {np.sum(x <= 1e-5) / np.sum(np.ones_like(x))}")
     # return np.sum(np.abs(x) > 1e-6 * np.max(np.abs(x))) / x.size
     return np.sum(np.abs(x) > 1e-5) / x.size
     # return np.sum(x <= 1e-5) / np.sum(np.ones_like(x))
@@ -103,9 +102,9 @@ def errX(x, x0):
     return np.linalg.norm(x - x0, 'fro') / (1 + np.linalg.norm(x0, 'fro'))
 
 def objFun(x, A, b, mu):
-    r = np.dot(A, x) - b
-    # return 0.5 * np.linalg.norm(A @ x - b, ord='fro') ** 2 + mu * np.sum(np.linalg.norm(x, ord=2, axis=1))
-    return 0.5 * np.linalg.norm(r, ord='fro') ** 2 + mu * np.sum(np.linalg.norm(x, ord=2, axis=1))
+    # r = np.dot(A, x) - b
+    # return 0.5 * np.linalg.norm(r, ord='fro') ** 2 + mu * np.sum(np.linalg.norm(x, ord=2, axis=1))
+    return 0.5 * np.linalg.norm(A @ x - b, ord='fro') ** 2 + mu * np.sum(np.linalg.norm(x, ord=2, axis=1))
 
 def errObj(obj, obj0):
     return np.abs(obj - obj0)
@@ -135,15 +134,15 @@ solversCollection = [
     # 'gl_cvx_mosek',
     # 'gl_gurobi',
     # 'gl_mosek',
-    'gl_SGD_primal',
-    'gl_ProxGD_primal', 
+    # 'gl_SGD_primal',
+    'gl_ProxGD_primal',
+    'gl_FProxGD_primal', 
     # 'gl_ADMM_dual',
     # 'gl_ADMM_primal_direct', 
     # 'gl_ADMM_primal',
     # 'gl_FGD_primal', 
     # 'gl_FGD_primal_line_search',
     # 'gl_ProxGD_primal_line_search',
-    # 'gl_FProxGD_primal', 
     # 'gl_FProxGD_primal_line_search',
     # 'gl_SGD_primal_normal_sgd',
     # 'gl_GD_primal', 
@@ -155,9 +154,9 @@ def optsOuterInit(opts: dict):
     optsOuter = {}
     if opts is None:
         opts = {}
-    optsOuter['maxit'] = opts.get('maxit', 100) # 最大迭代次数
-    optsOuter['maxit_inn'] = opts.get('maxit_inn', 30) # 内循环最大迭代次数
-    optsOuter['ftol'] = opts.get('ftol', 1e-10) # 针对函数值的停机判断条件 当相对函数值变化或相对历史最佳函数值变化小于该值时认为满足
+    optsOuter['maxit'] = opts.get('maxit', 50) # 最大迭代次数
+    optsOuter['maxit_inn'] = opts.get('maxit_inn', 200) # 内循环最大迭代次数
+    optsOuter['ftol'] = opts.get('ftol', 1e-8) # 针对函数值的停机判断条件 当相对函数值变化或相对历史最佳函数值变化小于该值时认为满足
     optsOuter['ftol_init_ratio'] = opts.get('ftol_init_ratio', 1e5) # 初始时停机准则 opts['ftol'] 的放大倍数
     optsOuter['gtol'] = opts.get('gtol', 1e-6) # 针对梯度的停机判断条件
     optsOuter['gtol_init_ratio'] = 1 / optsOuter['gtol'] # 初始时停机准则 opts['gtol'] 的放大倍数
@@ -176,8 +175,8 @@ def optsInnerInit(opts: dict):
     optsInner = {}
     optsOuter = optsOuterInit(opts)
     optsInner['maxit_inn'] = optsOuter['maxit_inn'] # 内循环最大迭代次数 最大迭代次数，由 opts.maxit_inn 给出
-    optsInner['ftol'] = optsOuter['ftol']# * optsOuter['ftol_init_ratio'] # 针对函数值的停机判断条件 1e-5
-    optsInner['gtol'] = optsOuter['gtol']# * optsOuter['gtol_init_ratio'] # 针对梯度的停机判断条件 1
+    optsInner['ftol'] = optsOuter['ftol']# 针对函数值的停机判断条件 
+    optsInner['gtol'] = optsOuter['gtol']# 针对梯度的停机判断条件
     optsInner['alpha0'] = opts.get('alpha0', 1) #初始步长
     optsInner['mu0'] = opts.get('mu0', 1e-2) # 目标最小的mu0 便于连续化策略和内循环的求解器一起使用
     optsInner['gamma'] = opts.get('gamma', 0.9) # 
@@ -212,6 +211,8 @@ def LASSO_group_con(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu0: float, op
     optsInner = optsInnerInit(optsOuter)
     optsInner['alpha0'] = 1 / np.max(eigs)
     optsInner['mu0'] = mu0
+    optsInner['ftol'] = optsOuter['ftol'] * optsOuter['ftol_init_ratio'] # 针对第一次循环放低停机准则
+    optsInner['gtol'] = optsOuter['gtol'] * optsOuter['gtol_init_ratio'] # 针对第一次循环放低停机准则
     # 初始化【结果输出】
     outResult = outInit()
 
@@ -227,8 +228,9 @@ def LASSO_group_con(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu0: float, op
         logger.info(f"--->iter {k} : current mu_t: {mu_t}<---")
         logger.info(f"current fval: {f}")
         logger.debug(f"current alpha0: {optsInner['alpha0']}")
-        optsInner['gtol'] = max(optsInner['gtol'] * optsOuter['etag'], optsOuter['gtol'])
-        optsInner['ftol'] = max(optsInner['ftol'] * optsOuter['etaf'], optsOuter['ftol'])
+        # 不断严格化停机准则
+        optsInner['gtol'] = max(optsInner['gtol'] * optsOuter['etag'], optsOuter['gtol']) # 保证下界
+        optsInner['ftol'] = max(optsInner['ftol'] * optsOuter['etaf'], optsOuter['ftol']) # 保证下界
         logger.info(f"optsInner['ftol']: {optsInner['ftol']}")
         logger.info(f"optsInner['gtol']: {optsInner['gtol']}")
         
@@ -245,8 +247,9 @@ def LASSO_group_con(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu0: float, op
         logger.info(f"current itr_inn: {itr_inn}")
         logger.info(f"is_inner_converged: {outInner['flag']}")
 
-        # 内循环迭代收敛
-        if not outInner['flag']:
+        # flag 默认为false 默认每次外循环均缩小mu_t
+        # 规定次数内，内循环迭代收敛达到停机条件 则不缩小mu_t
+        if outInner['flag']:
             mu_t = max(mu_t * optsOuter['factor'], mu0)
     
         outResult['itr_inn'] = outResult['itr_inn'] + itr_inn # 累加内层迭代总迭代数量
@@ -255,6 +258,8 @@ def LASSO_group_con(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu0: float, op
             logger.debug(f"--->fval has converged to {f}")
             logger.debug(f"--->nrmG has converged to {nrmG}")
             logger.debug(f"--->abs(f-fp) has converged to {abs(f-fp)}")
+            # 虽然最后一次迭代相比上次迭代没有更多精进，可舍去 但是迭代量确实计算了
+            # outResult['itr_inn'] = outResult['itr_inn'] - itr_inn
             break
         
         
@@ -264,6 +269,7 @@ def LASSO_group_con(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu0: float, op
     logger.debug(f"len(outResult['f_hist']): {len(outResult['f_hist'])}")
     logger.debug(f"outResult['itr_inn']: {outResult['itr']}")
     logger.info(f"--->end of LASSO_group_con<---")
+    # 如果舍去外循环最后一次迭代，zip会以更短的 outResult['itr_inn'] 为主
     outResult['iters'] = zip(range(outResult['itr_inn']), outResult['f_hist'])
 
     return x, outResult['itr_inn'], outResult
