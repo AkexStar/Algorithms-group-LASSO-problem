@@ -2,7 +2,7 @@ import numpy as np
 import src.utils as utils
 
 # 近似点梯度法
-# 参考 http://faculty.bicmr.pku.edu.cn/~wenzw/optbook/pages/lasso_ppa/LASSO_ppa.html
+# 参考 http://faculty.bicmr.pku.edu.cn/~wenzw/optbook/lect/19-lect-proxg.pdf
 
 def gl_ProxGD_primal_inner(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu: float, opts: dict = {}):
     opts = utils.optsInnerInit(opts)
@@ -30,8 +30,14 @@ def gl_ProxGD_primal_inner(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu: flo
         out['g_hist'].append(nrmG)
         out['f_hist'].append(f)
         f_best = np.min([f_best, f])
-        utils.logger.debug(f"\tinner iter {k}: fval: {f}, f_best: {f_best}")
         out['f_hist_best'].append(f_best)
+
+        utils.logger.debug(f"  inner iter {k}: fval: {f}, f_best: {f_best}")
+        utils.logger.debug(f"\tabs(fval - f_best) = {np.abs(f - f_best)}")
+        utils.logger.debug(f"\topts['ftol'] = {opts['ftol']}")
+        utils.logger.debug(f"\tout['f_hist'][k] - out['f_hist'][k-1] = {out['f_hist'][k] - out['f_hist'][k-1]}")
+        utils.logger.debug(f"\topts['gtol'] = {opts['gtol']}")
+        utils.logger.debug(f"\tout['g_hist'][k] = {out['g_hist'][k]}")
 
         if k > 2 and np.abs(out['f_hist'][k] - out['f_hist'][k-1]) < opts['ftol'] and out['g_hist'][k] < opts['gtol']:
             out['flag'] = True
@@ -68,8 +74,11 @@ def gl_ProxGD_primal(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu: float, op
 
     opts = utils.optsOuterInit(opts)
     opts['method'] = gl_ProxGD_primal_inner
-    opts['maxit'] = 50
-    opts['maxit_inn'] = 30
     opts['gamma'] = 0.85
+    opts['gtol'] = 1e-6
+    opts['gtol_init_ratio'] = 1 / opts['gtol']
+    opts['ftol'] = 1e-9
+    opts['ftol_init_ratio'] = 1e6
+    # opts['factor'] = 0.05
     x, iter, out = utils.LASSO_group_con(x0, A, b, mu, opts)
     return x, iter, out
