@@ -2,6 +2,7 @@ import numpy as np
 import src.utils as utils
 
 # 快速近似点梯度法
+# 参考 http://faculty.bicmr.pku.edu.cn/~wenzw/optbook/pages/lasso_proxg/demo_proxg.html
 
 def gl_FProxGD_primal_inner(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu: float, opts: dict = {}):
     opts = utils.optsInnerInit(opts)
