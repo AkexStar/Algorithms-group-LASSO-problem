@@ -36,7 +36,7 @@ def gl_ADMM_primal(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu: float, opts
         if primal_sat < opts['thre'] and dual_sat < opts['thre']:
             break
     
-    utils.logger.info(f"k: {k}")
+    # utils.logger.info(f"k: {k}")
     out['itr'] = k + 1
     out['fval'] = f
     utils.logger.info(f"ADMM_primal: itr: {out['itr']}, fval: {out['fval']}")
