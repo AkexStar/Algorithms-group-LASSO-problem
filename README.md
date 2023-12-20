@@ -2,9 +2,11 @@
 
 本项目为 2023 年PKU秋季学期【最优化方法】课程的编程作业
 
-相关的课程信息链接如下：[课程页面](http://faculty.bicmr.pku.edu.cn/~wenzw/opt-2023-fall.html)、[作业描述](http://faculty.bicmr.pku.edu.cn/~wenzw/opt2015/homework5g.pdf)、[提交要求](http://faculty.bicmr.pku.edu.cn/~wenzw/opt2015/homework5-req.pdf)，后两个文件在项目 `/doc` 路径下有pdf版本。
+相关的课程信息链接如下：[课程页面](http://faculty.bicmr.pku.edu.cn/~wenzw/opt-2023-fall.html)、[作业描述](http://faculty.bicmr.pku.edu.cn/~wenzw/opt2015/homework5g.pdf)、[提交要求](http://faculty.bicmr.pku.edu.cn/~wenzw/opt2015/homework5-req.pdf)，后两个文件在项目 [/doc](./doc) 路径下有pdf版本。
 
-面向的问题形式为以下表达式：
+## 问题描述
+
+本项目实现的算法面向以下问题：
 ```math
 \min _{x \in \mathbb{R}^{n \times l}} \frac{1}{2}\|A x-b\|_F^2+\mu\|x\|_{1,2}
 ```
@@ -108,24 +110,26 @@ ALGORITHMS-GROUP-LASSO-PROBLEM
 │  report.ipynb
 │  requirements.txt
 │  Test_group_lasso.py
+│
 ├─doc
 │      homework-description.pdf
 │      homework-requirement.pdf
+│
 └─src
-    │  gl_ADMM_dual.py
-    │  gl_ADMM_primal.py
-    │  gl_ALM_dual.py
-    │  gl_cvx_gurobi.py
-    │  gl_cvx_mosek.py
-    │  gl_FGD_primal.py
-    │  gl_FProxGD_primal.py
-    │  gl_GD_primal.py
-    │  gl_gurobi.py
-    │  gl_mosek.py
-    │  gl_ProxGD_primal.py
-    │  gl_SGD_primal.py
-    │  utils.py
-    │  __init__.py
+       gl_ADMM_dual.py
+       gl_ADMM_primal.py
+       gl_ALM_dual.py
+       gl_cvx_gurobi.py
+       gl_cvx_mosek.py
+       gl_FGD_primal.py
+       gl_FProxGD_primal.py
+       gl_GD_primal.py
+       gl_gurobi.py
+       gl_mosek.py
+       gl_ProxGD_primal.py
+       gl_SGD_primal.py
+       utils.py
+       __init__.py
 ```
 
 ## 软件环境版本
