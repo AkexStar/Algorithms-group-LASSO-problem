@@ -19,7 +19,7 @@ def gl_mosek(x0, A, b, mu, opts={}):
                     Domain.inQCone())
         for i in range(n):
             M.constraint(Expr.vstack([ts.index(i), X.slice([i, 0], [i + 1, l]).reshape(l)]), Domain.inQCone())
-        obj = Expr.add(Expr.mul(0.5, t1), Expr.mul(mu, Expr.sum(ts)))
+        obj = Expr.add(Expr.mul(2, t1), Expr.mul(mu, Expr.sum(ts)))
         M.objective('obj', ObjectiveSense.Minimize, obj)
         M.solve()
         with open(utils.cvxLogsName, encoding='utf-8') as f:
