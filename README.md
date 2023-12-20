@@ -4,6 +4,16 @@
 
 相关的课程信息链接如下：[课程页面](http://faculty.bicmr.pku.edu.cn/~wenzw/opt-2023-fall.html)、[作业描述](http://faculty.bicmr.pku.edu.cn/~wenzw/opt2015/homework5g.pdf)、[提交要求](http://faculty.bicmr.pku.edu.cn/~wenzw/opt2015/homework5-req.pdf)，后两个文件在项目 `/doc` 路径下有pdf版本。
 
+面向的问题形式为以下表达式：
+```math
+\min _{x \in \mathbb{R}^{n \times l}} \frac{1}{2}\|A x-b\|_F^2+\mu\|x\|_{1,2}
+```
+其中 $A \in \mathbb{R}^{m \times n}$, $b \in \mathbb{R}^{m \times l}$, $\mu>0$ 并且
+```math
+\|x\|_{1,2}=\sum_{i=1}^n\|x(i, 1: l)\|_2
+```
+其中 $x(i, 1: l)$ 是矩阵 $x$ 的第 $i$ 行。
+
 ## 代码运行
 
 使用以下命令测试所有算法脚本，打印求解情况并绘制目标函数下降曲线：
@@ -78,15 +88,45 @@ optional arguments:
 在本项目中，每个求解器的脚本名与函数名相同，脚本名称均为 `gl_*.py` 格式，函数名称均为 `gl_*()` 格式。一个样例函数接口形式如下：
 
 ```python
-[x, iter, out] = gl_cvx_mosek(x0, A, b, mu, opts)
+[x, iter, out] = gl_solver_name(x0, A, b, mu, opts)
 ```
 
 输入分别为给定的初始解 `x0` ，而 `A` 、 `b` 、 `mu` 是给定的数据。
+`opts` 是用来指定求解器内部参数的字典变量。其根据不同的求解器可填入不同的指定参数。参数种类和默认参数值可见文件[utils.py](./src/utils.py)中各个 `solver_name_optsInit()` 函数。
+
 输出 `x` 为算法求解出的解，`iter` 为输出为 `x` 时所对应的算法迭代次数。 `out` 为算法输出的其他信息，是一个字典结构，包含以下内容：
 
 - `out['fval']` 为算法求解出的目标函数值。
 - `out['iters']` 为算法每一步迭代的目标函数值与迭代号的zip组合列表。
 - 上述两项为调用mosek和gurobi的输出信息，主要从求解器的日志输出中用正则表达式爬取。而自行编写的求解器则除上述两项外具有更多记录信息。
+
+## 项目文件结构
+```txt
+ALGORITHMS-GROUP-LASSO-PROBLEM
+│  .gitignore
+│  README.md
+│  report.ipynb
+│  requirements.txt
+│  Test_group_lasso.py
+├─doc
+│      homework-description.pdf
+│      homework-requirement.pdf
+└─src
+    │  gl_ADMM_dual.py
+    │  gl_ADMM_primal.py
+    │  gl_ALM_dual.py
+    │  gl_cvx_gurobi.py
+    │  gl_cvx_mosek.py
+    │  gl_FGD_primal.py
+    │  gl_FProxGD_primal.py
+    │  gl_GD_primal.py
+    │  gl_gurobi.py
+    │  gl_mosek.py
+    │  gl_ProxGD_primal.py
+    │  gl_SGD_primal.py
+    │  utils.py
+    │  __init__.py
+```
 
 ## 软件环境版本
 
