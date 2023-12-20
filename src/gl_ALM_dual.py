@@ -35,7 +35,8 @@ def gl_ALM_dual(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu: float, opts:di
         x = x - sigma * (A.T @ y + z)
         # f = 0.5 * np.linalg.norm(A @ x - b, ord='fro') ** 2 + mu * np.sum(np.linalg.norm(x, ord=2, axis=1))
         f = utils.objFun(x, A, b, mu)
-        f_dual = 0.5 * np.linalg.norm(y, ord='fro') ** 2 + np.sum(y * b)
+        f_dual = 0.5 * np.linalg.norm(y, ord='fro') ** 2 - np.sum(y * b)
+        utils.logger.debug(f"f - f_dual: {f - f_dual}")
         out['prim_hist'].append(f)
         out['dual_hist'].append(f_dual)
 
@@ -48,5 +49,6 @@ def gl_ALM_dual(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu: float, opts:di
     utils.logger.info(f"ALM_dual: itr_inn: {out['itr_inn']}")
     utils.logger.info(f"ALM_dual: len(out['prim_hist']): {len(out['prim_hist'])}")
     out['iters'] = zip(range(out['itr']), out['prim_hist'])#, out['dual_hist'])
+    # out['iters'] = zip(range(out['itr']), out['dual_hist'])
         
     return x, out['itr'], out
