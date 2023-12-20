@@ -79,7 +79,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='Test_group_lasso', description='测试不同的求解器进行group-lasso求解')
     # parser.add_argument('--solvers', '-S', nargs='+', default=['gl_cvx_gurobi', 'gl_cvx_mosek'], help='指定求解器名称, 输入`all` 可以测试本项目中所有的求解器函数。默认填充为 `[\'gl_cvx_gurobi\', \'gl_cvx_mosek\']` 这两个求解器。')
     parser.add_argument('--solvers', '-S', nargs='+', default=['all'], help='指定求解器名称, 输入`all` 可以测试本项目中所有的求解器函数。默认填充为 `[\'gl_cvx_gurobi\', \'gl_cvx_mosek\']` 这两个求解器。')
-    # parser.add_argument('--mu', default=1e-2, type=float, help='正则项的系数mu。默认为0.01。')
     parser.add_argument('--seed', '-RS', default=97108120, type=int, help='指定测试数据的随机数种子。默认为97108120，为 `alx` 的ASCII码依次排列。') # seed = ord("a") ord("l") ord("x")
     parser.add_argument('--plot', '-P', action='store_true', help='表明是否绘制迭代曲线，如果增加此参数，则绘制。')
     parser.add_argument('--log', '-L', default='INFO', choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], help='指定日志等级。默认为INFO。')
@@ -107,10 +106,11 @@ if __name__ == '__main__':
     utils.logger.setLevel(args.log)
 
     # 初始化测试数据
-    x0, A, b, mu, u, f_u = testData(opts)
+    x0, A, b, mu, u, f_u = testData(dict(opts.get('testData', {})))
     sparsity_u = utils.sparsity(u)
     utils.logger.info(f"问题精确解的目标函数值f_u: {f_u}")
     utils.logger.info(f"问题精确解的稀疏度sparsity_u: {sparsity_u}")
+    utils.logger.info(f"\n#######==Start all solvers TEST==#######")
 
     # 测试结果表格
     tab = []
@@ -137,9 +137,12 @@ if __name__ == '__main__':
             except AttributeError:
                 utils.logger.error(f"求解器{solver_name}不存在，跳过该求解器。")
                 continue
+            # 取出求解器的参数
+            solver_opts = dict(opts.get(solver_name[3:], {}))
+            utils.logger.info(f"solver_opts: {solver_opts}")
             # 测试求解器并记录时间
             tic = time.time()
-            x, iters_N, out = solver(copy.deepcopy(x0), A, b, mu, opts) 
+            x, iters_N, out = solver(copy.deepcopy(x0), A, b, mu, solver_opts) 
             toc = time.time()
             time_cpu = toc - tic
             utils.cleanUpLog()
