@@ -12,9 +12,29 @@
 python Test_group_lasso.py -S all -P
 ```
 
-可以使用 `python Test_group_lasso.py -h` 查看帮助信息：
+结果为
+```txt
+exact_fval=f_u: 0.652304376262884
+sparsity_u: 0.099609375
 
-```bash
+Solver            Objective    Obj_ABS_Error    x_u_Error    Time(s)    Iter    Sparsity
+--------------  -----------  ---------------  -----------  ---------  ------  ----------
+cvx_mosek          0.652291      1.36211e-05  3.9124e-05   0.453096       13   0.102539
+cvx_gurobi         0.652291      1.33551e-05  3.75525e-05  0.860177       12   0.102539
+mosek              0.652301      3.33869e-06  9.84223e-06  0.33137        11   0.0996094
+gurobi             0.652291      1.33727e-05  3.97062e-05  0.60077        13   0.103516
+SGD_primal         0.652294      1.02855e-05  5.52482e-05  0.63127      1473   0.121094
+ProxGD_primal      0.652291      1.36421e-05  3.89562e-05  0.187898      190   0.102539
+FProxGD_primal     0.652291      1.36421e-05  3.8964e-05   0.249066      486   0.102539
+ALM_dual           0.652308      3.97276e-06  6.83455e-05  0.303512       70   0.0996094
+ADMM_dual          0.652309      4.80892e-06  6.84793e-05  0.0626595      86   0.0996094
+ADMM_primal        0.652291      1.34764e-05  3.8987e-05   0.46301      2694   0.102539
+```
+![fval curve](https://github.com/AkexStar/Algorithms-group-LASSO-problem/assets/55226358/3f08db06-9d2f-472b-a430-fdabb4d87d15)
+
+不知道如何使用测试脚本？可以使用 `python Test_group_lasso.py -h` 查看帮助信息：
+
+```txt
 usage: Test_group_lasso [-h] [--solvers SOLVERS [SOLVERS ...]] [--seed SEED] [--plot] [--log {DEBUG,INFO,WARNING,ERROR,CRITICAL}] [--opts OPTS [OPTS ...]] [--compare]
 测试不同的求解器进行group-lasso求解
 
@@ -32,7 +52,7 @@ optional arguments:
   --compare, -C         表明是否将计算得到的最优解与mosek和gurobi的结果比较，如果增加此参数，则比较。
 ```
 
-如果要进行调试，使用vs code时建议使用以下配置launch.json：
+如果要进行调试，使用vs code时建议使用以下配置 `launch.json`：
 
 ```json
 {
