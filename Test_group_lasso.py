@@ -82,7 +82,7 @@ if __name__ == '__main__':
     parser.add_argument('--seed', '-RS', default=97108120, type=int, help='指定测试数据的随机数种子。默认为97108120，为 `alx` 的ASCII码依次排列。') # seed = ord("a") ord("l") ord("x")
     parser.add_argument('--plot', '-P', action='store_true', help='表明是否绘制迭代曲线，如果增加此参数，则绘制。')
     parser.add_argument('--log', '-L', default='INFO', choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], help='指定日志等级。默认为INFO。')
-    parser.add_argument('--opts', '-O', nargs='+', default={}, type=lambda kv: kv.split("="), help='指定测试数据的参数，格式为`key=value`，可以有多个。默认为空。')
+    parser.add_argument('--opts', '-O', nargs='+', default={}, type=lambda kv: kv.split("="), help='指定测试数据的参数，格式为`key=value`，可以有多个。例如 `-O ALM_dual={\'maxit\':60, \'maxit_inn\':30} testData={\'m\'=256, \'n\':512}` 。默认为空。')
     parser.add_argument('--compare', '-C', action='store_true', help='表明是否将计算得到的最优解与mosek和gurobi的结果比较，如果增加此参数，则比较。')
     args = parser.parse_args()
     utils.logger.setLevel(args.log)

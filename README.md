@@ -14,11 +14,23 @@ python Test_group_lasso.py -S all -P
 
 可以使用 `python Test_group_lasso.py -h` 查看帮助信息：
 
-- `--solver` `-S` 可以指定某个求解器，默认为 `['gl_cvx_gurobi', 'gl_cvx_mosek']` 这两个求解器，也可以指定 `all` 运行所有求解器。
-- `-mu` 可以指定 `mu` 的值，默认为 `1e-2`。
-- `-seed` `-RS` 可以指定随机种子，默认为 `97108120`。
-- `--plot` `-P` 用于指定是否绘制图像，默认为不绘制。
-- `--info` `-L` 用于指定日志输出级别，默认为 `INFO`
+```bash
+usage: Test_group_lasso [-h] [--solvers SOLVERS [SOLVERS ...]] [--seed SEED] [--plot] [--log {DEBUG,INFO,WARNING,ERROR,CRITICAL}] [--opts OPTS [OPTS ...]] [--compare]
+测试不同的求解器进行group-lasso求解
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --solvers SOLVERS [SOLVERS ...], -S SOLVERS [SOLVERS ...]
+                        指定求解器名称, 输入`all` 可以测试本项目中所有的求解器函数。默认填充为 `['gl_cvx_gurobi', 'gl_cvx_mosek']` 这两个求解器。
+  --seed SEED, -RS SEED
+                        指定测试数据的随机数种子。默认为97108120，为 `alx` 的ASCII码依次排列。
+  --plot, -P            表明是否绘制迭代曲线，如果增加此参数，则绘制。
+  --log {DEBUG,INFO,WARNING,ERROR,CRITICAL}, -L {DEBUG,INFO,WARNING,ERROR,CRITICAL}
+                        指定日志等级。默认为INFO。
+  --opts OPTS [OPTS ...], -O OPTS [OPTS ...]
+                        指定测试数据的参数，格式为`key=value`，可以有多个。例如 `-O ALM_dual={'maxit':60, 'maxit_inn':30} testData={'m'=256, 'n':512}` 。默认为空。
+  --compare, -C         表明是否将计算得到的最优解与mosek和gurobi的结果比较，如果增加此参数，则比较。
+```
 
 如果要进行调试，使用vs code时建议使用以下配置launch.json：
 
