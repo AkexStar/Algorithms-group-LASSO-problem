@@ -85,6 +85,7 @@ if __name__ == '__main__':
     parser.add_argument('--opts', '-O', nargs='+', default={}, type=lambda kv: kv.split("="), help='指定测试数据的参数，格式为`key=value`，可以有多个。默认为空。')
     parser.add_argument('--compare', '-C', action='store_true', help='表明是否将计算得到的最优解与mosek和gurobi的结果比较，如果增加此参数，则比较。')
     args = parser.parse_args()
+    utils.logger.setLevel(args.log)
     # 处理opts参数
     utils.logger.debug(f"raw opts: {args.opts}")
     if any(len(kv) < 2 for kv in args.opts): 
@@ -103,7 +104,6 @@ if __name__ == '__main__':
     utils.logger.info(f"is plot?: {args.plot}")
     utils.logger.info(f"is compare?: {args.compare}")
     utils.logger.info(f"log level: {args.log}")
-    utils.logger.setLevel(args.log)
 
     # 初始化测试数据
     x0, A, b, mu, u, f_u = testData(dict(opts.get('testData', {})))
@@ -185,6 +185,8 @@ if __name__ == '__main__':
     else:
         tabulate_headers = ['Solver', 'Objective', 'Obj_ABS_Error', 'x_u_Error', 'Time(s)', 'Iter', 'Sparsity']
     utils.logger.info("\n"+tabulate(tab, headers=tabulate_headers))
+    print("\n")
+    print(tabulate(tab, headers=tabulate_headers))
     if args.plot:
         plt.yscale('log')
         plt.legend()
