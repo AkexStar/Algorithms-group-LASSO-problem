@@ -76,15 +76,8 @@ def gl_SGD_primal(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu: float, opts=
     - minimize   (1/2)*||Ax-b||_2^2 + mu*||x||_{1,2}
     - A is m x n, b is m x l, x is n x l
     """
-    opts = utils.optsOuterInit(opts)
+    opts = utils.SGD_primal_optsInit(opts)
     opts['method'] = gl_SGD_primal_inner
-    opts['maxit'] = 50
-    opts['maxit_inn'] = 250
-    opts['gtol'] = 1e-6
-    opts['gtol_init_ratio'] = 1 / opts['gtol']
-    opts['ftol'] = 1e-9
-    opts['ftol_init_ratio'] = 1e6
-    opts['etaf'] = 0.1
     x, iter, out = utils.LASSO_group_con(x0, A, b, mu, opts)
     return x, iter, out
     

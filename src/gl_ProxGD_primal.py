@@ -72,13 +72,7 @@ def gl_ProxGD_primal_inner(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu: flo
 
 def gl_ProxGD_primal(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu: float, opts: dict={}):
 
-    opts = utils.optsOuterInit(opts)
+    opts = utils.ProxGD_primal_optsInit(opts)
     opts['method'] = gl_ProxGD_primal_inner
-    opts['gamma'] = 0.85
-    opts['gtol'] = 1e-6
-    opts['gtol_init_ratio'] = 1 / opts['gtol']
-    opts['ftol'] = 1e-9
-    opts['ftol_init_ratio'] = 1e6
-    # opts['factor'] = 0.05
     x, iter, out = utils.LASSO_group_con(x0, A, b, mu, opts)
     return x, iter, out
