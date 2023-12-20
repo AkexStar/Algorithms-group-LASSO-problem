@@ -5,9 +5,6 @@ import time
 import logging
 import numpy as np
 
-class utils:
-    def __init__(self):
-        pass
 
 def setLoggerLevel(logger, level: str):
     """设置日志级别
@@ -44,10 +41,10 @@ def loggerInit(name: str = None):
                         level = logging.INFO,
                         encoding='utf-8',
                         format = '[%(asctime)s] %(filename)s: %(funcName)s: %(levelname)s: %(message)s')
-    logger.info(f"日志文件保存在: {current_work_dir}\logs\{name}-{now}.log")
+    logger.info(f"日志文件保存在: {current_work_dir}\logs\{name}{now}.log")
     return logger, loggerName, cvxLogsName
 
-logger, loggerName, cvxLogsName = loggerInit('utils')
+logger, loggerName, cvxLogsName = loggerInit('AGLP')
 
 # 重定向stdout
 class RedirectStdStreams(object):
@@ -130,10 +127,11 @@ def BBupdate(x, xp, g, gp, k, alpha):
     return max(min(alpha, 1e12), 1e-12)
 
 solversCollection = [
-    # 'gl_cvx_gurobi',
-    # 'gl_cvx_mosek',
-    'gl_gurobi',
+    'gl_cvx_mosek',
+    'gl_cvx_gurobi',
     'gl_mosek',
+    'gl_gurobi',
+    
     'gl_SGD_primal',
     'gl_ProxGD_primal',
     'gl_FProxGD_primal', 
