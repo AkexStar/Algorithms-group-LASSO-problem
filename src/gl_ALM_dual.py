@@ -33,8 +33,8 @@ def gl_ALM_dual(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu: float, opts:di
                 break
 
         x = x - sigma * (A.T @ y + z)
-        f = 0.5 * np.linalg.norm(A @ x - b, ord='fro') ** 2 + mu * np.sum(np.linalg.norm(x, ord=2, axis=1))
-        # f = utils.objFun(A, x, b, mu)
+        # f = 0.5 * np.linalg.norm(A @ x - b, ord='fro') ** 2 + mu * np.sum(np.linalg.norm(x, ord=2, axis=1))
+        f = utils.objFun(x, A, b, mu)
         f_dual = 0.5 * np.linalg.norm(y, ord='fro') ** 2 + np.sum(y * b)
         out['prim_hist'].append(f)
         out['dual_hist'].append(f_dual)
