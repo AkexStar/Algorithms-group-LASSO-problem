@@ -42,7 +42,7 @@ def loggerInit(name: str = None):
                         level = logging.INFO,
                         encoding='utf-8',
                         format = '[%(asctime)s] %(filename)s: %(funcName)s: %(levelname)s: %(message)s')
-    logger.info(f"日志文件保存在: {current_work_dir}\logs\{name}{now}.log")
+    logger.debug(f"日志文件保存在: {current_work_dir}\logs\{name}{now}.log")
     return logger, loggerName, cvxLogsName
 
 logger, loggerName, cvxLogsName = loggerInit('AGLP')
