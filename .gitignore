@@ -9,3 +9,4 @@ __pycache__
 /doc/report/*.bbl
 /doc/report/*.out
 /doc/report/*.synctex*
+doc/report/main.pdf
