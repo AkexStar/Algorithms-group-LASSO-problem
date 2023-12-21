@@ -10,7 +10,7 @@ def gl_gurobi(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu: float, opts={}):
     # X = model.addMVar((n, l), lb=-gp.GRB.INFINITY, vtype=gp.GRB.CONTINUOUS, name="x")
     X.start = x0
     Y = model.addMVar((m, l), lb=-gp.GRB.INFINITY)
-    ts = model.addMVar(n)
+    ts = model.addMVar(n, lb=0.0)
     for j in range(l):
         model.addConstr(A @ X[:, j] - b[:, j] == Y[:, j])
     for i in range(n):
