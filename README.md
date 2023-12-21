@@ -16,7 +16,9 @@
 ```
 其中 $x(i, 1: l)$ 是矩阵 $x$ 的第 $i$ 行。
 
-## 代码运行
+## 使用测试脚本
+
+### 一览所有求解器
 
 使用以下命令测试所有算法脚本，打印求解情况并绘制目标函数下降曲线：
 
@@ -44,14 +46,18 @@ ADMM_primal        0.652291      1.34764e-05  3.8987e-05   0.46301      2694   0
 ```
 ![fval curve](https://github.com/AkexStar/Algorithms-group-LASSO-problem/assets/55226358/3f08db06-9d2f-472b-a430-fdabb4d87d15)
 
+### 测试脚本的帮助
+
 不知道如何使用测试脚本？可以使用 `python Test_group_lasso.py -h` 查看帮助信息：
 
 ```txt
-usage: Test_group_lasso [-h] [--solvers SOLVERS [SOLVERS ...]] [--seed SEED] [--plot] [--log {DEBUG,INFO,WARNING,ERROR,CRITICAL}] [--opts OPTS [OPTS ...]] [--compare]
-测试不同的求解器进行group-lasso求解
+usage: Test_group_lasso [-h] [--solvers SOLVERS [SOLVERS ...]] [--seed SEED] [--plot] [--log {DEBUG,INFO,WARNING,ERROR,CRITICAL}] [--opts OPTS [OPTS ...]] [--compare] [--version] [--printDefaultOpts]
+
+测试不同的求解器进行group-lasso求解 https://github.com/AkexStar/Algorithms-group-LASSO-problem
 
 optional arguments:
   -h, --help            show this help message and exit
+  --version, -V         show program's version number and exit
   --solvers SOLVERS [SOLVERS ...], -S SOLVERS [SOLVERS ...]
                         指定求解器名称, 输入`all` 可以测试本项目中所有的求解器函数。默认填充为 `['gl_cvx_gurobi', 'gl_cvx_mosek']` 这两个求解器。
   --seed SEED, -RS SEED
@@ -60,11 +66,28 @@ optional arguments:
   --log {DEBUG,INFO,WARNING,ERROR,CRITICAL}, -L {DEBUG,INFO,WARNING,ERROR,CRITICAL}
                         指定日志等级。默认为INFO。
   --opts OPTS [OPTS ...], -O OPTS [OPTS ...]
-                        指定测试数据的参数，格式为`key=value`，可以有多个。例如 `-O ALM_dual={'maxit':60, 'maxit_inn':30} testData={'m'=256, 'n':512}` 。默认为空。
+                        指定测试数据的参数，格式为`key=value`，可以有多个。例如 `-O gl_ALM_dual={'maxit':60, 'maxit_inn':100} testData={'m'=256, 'n':512}` 。没有指定的参数将使用默认值。
   --compare, -C         表明是否将计算得到的最优解与mosek和gurobi的结果比较，如果增加此参数，则比较。
+  --printDefaultOpts, -PDO
+                        展示所有默认opts参数。
+```
+### 内设参数和默认值
+
+不知道测试脚本的 `--opts` 如何使用？可指定的参数有哪些？默认参数值是多少？可以使用 `python Test_group_lasso.py -PDO` 打印所有可设定参数和其默认值：
+
+```txt
+testData: {'seed': 97108120, 'mu': 0.01, 'n': 512, 'm': 256, 'l': 2, 'r': 0.1}
+gl_SGD_primal: {'maxit': 50, 'maxit_inn': 250, 'ftol': 1e-09, 'ftol_init_ratio': 1000000.0, 'etaf': 0.1, 'gtol': 1e-06, 'gtol_init_ratio': 1000000.0, 'etag': 0.1, 'factor': 0.1, 'mu1': 10.0, 'is_only_print_outer': False, 'method': None, 'gamma': 0.9, 'rhols': 1e-06, 'eta': 0.2, 'Q': 1.0}
+gl_ProxGD_primal: {'maxit': 50, 'maxit_inn': 250, 'ftol': 1e-09, 'ftol_init_ratio': 1000000.0, 'etaf': 0.1, 'gtol': 1e-06, 'gtol_init_ratio': 1000000.0, 'etag': 0.1, 'factor': 0.1, 'mu1': 10.0, 'is_only_print_outer': False, 'method': None, 'gamma': 0.85, 'rhols': 1e-06, 'eta': 0.2, 'Q': 1.0}
+gl_FProxGD_primal: {'maxit': 50, 'maxit_inn': 250, 'ftol': 1e-09, 'ftol_init_ratio': 1000000.0, 'etaf': 0.1, 'gtol': 1e-06, 'gtol_init_ratio': 1000000.0, 'etag': 0.1, 'factor': 0.1, 'mu1': 10.0, 'is_only_print_outer': False, 'method': None, 'gamma': 0.85, 'rhols': 1e-06, 'eta': 0.2, 'Q': 1.0}
+gl_ALM_dual: {'sigma': 10, 'maxit': 100, 'maxit_inn': 300, 'thre': 1e-06, 'thre_inn': 0.001}
+gl_ADMM_dual: {'sigma': 10, 'maxit': 1000, 'thre': 1e-06}
+gl_ADMM_primal: {'sigma': 10, 'maxit': 3000, 'thre': 1e-06}
 ```
 
-如果要进行调试，使用vs code时建议使用以下配置 `launch.json`：
+### 测试脚本的调试
+
+如果要进行调试，在使用vs code时建议使用以下配置 `launch.json`：
 
 ```json
 {
@@ -101,6 +124,29 @@ optional arguments:
 - `out['fval']` 为算法求解出的目标函数值。
 - `out['iters']` 为算法每一步迭代的目标函数值与迭代号的zip组合列表。
 - 上述两项为调用mosek和gurobi的输出信息，主要从求解器的日志输出中用正则表达式爬取。而自行编写的求解器则除上述两项外具有更多记录信息。
+
+如果想只测试某个算法函数，可参考以下代码：
+
+```python
+import src.utils as utils
+
+dataOpts = {} # 指定生成测试数据的参数 正则化系数mu 随机数种子seed 矩阵大小m n l 非零元素占比r
+# dataOpts = {'mu':0.01, 'seed':2333, 'm':256, 'n':512, 'l':2, 'r':0.1}
+x0, A, b, mu, u, f_u = utils.testData(dataOpts) # 得到测试数据
+solver_opts = {} # 求解算法参数
+solver_opts['solver_name'] = 'gl_ALM_dual' # 指定使用哪个求解算法
+x, iters_N, out = utils.testSolver(x0, A, b, mu, solver_opts)
+```
+
+或直接调用某个算法函数：
+
+```python
+import src.utils as utils
+from src.gl_ALM_dual import *
+
+x0, A, b, mu, u, f_u = utils.testData({})
+x, iter, out = gl_ALM_dual(x0, A, b, mu, {})
+```
 
 ## 项目文件结构
 ```txt
