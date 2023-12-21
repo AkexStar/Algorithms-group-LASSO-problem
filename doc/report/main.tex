@@ -190,6 +190,7 @@ Mosek 和 gurobi 同样拥具备对应的 python 软件包，可以直接调用�
 
 \subsection{\textbf{Gurobi}}
 Gurobi 同理，但不用写成二次锥约束的形式，第一项范数中的部分可以整个做变量替换，而第二项需要把范数替换成新的变量，原问题转换为如下形式：
+
 \begin{align*}
     & \underset{y, z}{\min} & & \frac{1}{2} \|y\|_F^2 + \mu \sum_{i=1}^{n} z_i \\
     & \text{s.t.} & & Ax - b = y \\
@@ -211,9 +212,9 @@ Gurobi 同理，但不用写成二次锥约束的形式，第一项范数中的�
 由\tabref{tab:all}和\figref{fig:MosekGurobi}可知：
 
 \begin{itemize}
-    \item Mosek 和 Gurobi 求解器的效率相当，迭代次数甚至相同。
-    \item Gurobi 在第一次迭代中出现负目标函数值，这可能是由于求解器的初始求解策略所致。
-    \item Mosek 和 Gurobi 得到的解与 CVX 得到的解非常相似，数值上几乎相同。
+    \item 直接调用 Mosek 和 Gurobi 求解器的效率相当，迭代次数甚至相同。
+    \item 手工构造约束和目标函数调用 Mosek 和 Gurobi 与使用 CVX 调用的结果相同，迭代次数也相差无几。
+    \item 手工调用的用时更短，可能 CVX 在转换问题形式调用接口上消耗了更多时间。
 \end{itemize}
 
 \begin{figure}[H]
@@ -242,10 +243,54 @@ $$
 
 具体而言，本项目原问题中$\mu_0$ 为 $0.01$，本项目选取$\mu_1$ 为 $100$，$\eta$ 取为 $0.1$。
 
+\section{\textbf{BB步长更新策略}}
+
+本项目使用 Barzilai-Borwein 步长更新策略来更新步长。其步长更新公式有两种：
+\begin{equation}
+x^{k+1}=x^k-\alpha_{\mathrm{BB} 1}^k \nabla f\left(x^k\right)\label{eq:BB1}
+\end{equation}
+\begin{equation}
+x^{k+1}=x^k-\alpha_{\mathrm{BB} 2}^k \nabla f\left(x^k\right) \label{eq:BB2}
+\end{equation}
+
+其中 $x^{(k)}$ 表示第 $k$ 次迭代的解，$g^{(k)}$ 表示第 $k$ 次迭代的梯度。具体系数的含义如下：
+$$
+\alpha_{\mathrm{BB} 1}^k \stackrel{\text { def }}{=} \frac{\left(s^{k-1}\right)^{\mathrm{T}} y^{k-1}}{\left(y^{k-1}\right)^{\mathrm{T}} y^{k-1}} 
+$$
+$$
+\alpha_{\mathrm{BB} 2}^k \stackrel{\text { def }}{=} \frac{\left(s^{k-1}\right)^{\mathrm{T}} s^{k-1}}{\left(s^{k-1}\right)^{\mathrm{T}} y^{k-1}} \text {, }
+$$
+$$
+s^{k-1} \stackrel{\text { def }}{=} x^k-x^{k-1}
+$$ 
+$$y^{k-1} \stackrel{\text { def }}{=} \nabla f\left(x^k\right)-\nabla f\left(x^{k-1}\right)
+$$
+
+在本项目中，SGD算法、ProxGD算法、FProxGD算法均可使用BB步长更新策略进行加速。BB更新只需要依赖前后两次迭代的解和梯度，形式简便，对算法加速效果较好。
+
+在实际代码中，本项目选择将其配合非单调收敛准则使用以获得更好的实际效果，即在每个迭代中使用非单调线索搜索步长，算法为：
+
+\begin{algorithm}
+    \caption{非单调线搜索的 $\mathrm{BB}$ 方法}
+    \begin{algorithmic}[1]
+    \State 给定 $x^0$, 选取初值 $\alpha>0$, 整数 $M \geqslant 0, c_1, \beta, \varepsilon \in(0,1), k=0$.
+    \While{$\left\|\nabla f\left(x^k\right)\right\|>\varepsilon$}
+        \While{$f\left(x^k-\alpha \nabla f\left(x^k\right)\right) \geqslant \max _{0 \leqslant j \leqslant \min (k, M)} f\left(x^{k-j}\right)-c_1 \alpha\left\|\nabla f\left(x^k\right)\right\|^2$}
+            \State 令 $\alpha \leftarrow \beta \alpha$.
+        \EndWhile
+        \State 令 $x^{k+1}=x^k-\alpha \nabla f\left(x^k\right)$.
+        \State 根据\equref{eq:BB1}或\equref{eq:BB2}计算 $\alpha$, 并做截断使得 $\alpha \in\left[\alpha_m, \alpha_M\right]$.
+        \State $k \leftarrow k+1$.
+    \EndWhile
+    \end{algorithmic}
+\end{algorithm}
+
+
+
 \section{\textbf{SGD次梯度算法}}
 
 \subsection{\textbf{算法描述}}
-次梯度算法是梯度法的一种泛化形式，通过使用次梯度来代替梯度，从而允许处理本问题目标函数中第二个非光滑项。其算法描述的伪代码如算法\ref{alg:SGD}所示。
+次梯度算法（SubGradient Descent, SGD）是梯度法的一种泛化形式，通过使用次梯度来代替梯度，从而允许处理本问题目标函数中第二个非光滑项。其算法描述的伪代码如算法\ref{alg:SGD}所示。
 
 \begin{algorithm}
     \caption{SGD Solver}
@@ -272,6 +317,7 @@ $$
 \subsection{\textbf{算法实现}}
 
 针对本项目中的问题，次梯度算法的实现关键在于如何计算 $\partial_{\ell_{1,2}}(x^{(k)})$。由于 $\ell_{1,2}$ 范数的定义为：
+
 \begin{equation*}\label{eq:l12}
     \lVert x \rVert_{1,2} = \sum_{i=1}^{n} \lVert x_{(i, :)} \rVert_2
 \end{equation*}
@@ -290,22 +336,143 @@ $$
 
 \subsection{\textbf{算法结果}}
 
+由\tabref{tab:all}和\figref{fig:SGD}可知：
+SGD算法的收敛速度较慢，迭代次数较多，但是每次迭代的时间较短，因此总用时较为适中。
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\columnwidth]{img/SGD.png}
+    {\centering \small \caption{SGD算法求解结果\label{fig:SGD}}}
+\end{figure}
+
 \section{\textbf{ProxGD次梯度算法}}
-
-对于上述目标函数，近似点梯度法考虑令 $\phi(x)=\frac{1}{2}\|Ax-b\|_2^2$，$h(x)=\mu\|x\|_1$，对光滑部分做梯度下降，并对非光滑部分使用近似点算子，得到迭代格式 $x_{k+1}=\text{prox}_{tkh(\cdot)}(x_k-t_k\nabla\phi(x_k))$。
-
-在此问题中，近似点算子可以解析地写出：
 
 \subsection{\textbf{算法描述}}
 
+近似点梯度法（Proximal Gradient Descent，ProxGD）同样使用梯度下降的思想，结合梯度和近似算子来处理非光滑项。伪代码如算法\ref{alg:ProxGD}所示。
+
+\begin{algorithm}
+    \caption{ProxGD Solver}
+    \label{alg:ProxGD}
+    \begin{algorithmic}[1]
+    \State \textbf{Input:} $A \in \mathbb{R}^{m \times n}$, $b \in \mathbb{R}^{m \times l}$, $\mu > 0$, maximum iterations \texttt{max\_iter}, tolerance \texttt{tol}
+    \State Initialize $x^{(0)}$ (random initialization)
+    \For{$k = 0, 1, 2, \ldots, \texttt{max\_iter}$}
+        \State Compute gradient $g^{(k)}$:
+        \[
+        g^{(k)} = A^T(Ax^{(k)} - b)
+        \]
+        \State Compute proximal operator:
+        \[
+        x_{\text{prox}} = \text{prox}_{\frac{\mu}{L}\lVert \cdot \rVert_{1,2}}\left(x^{(k)} - \frac{1}{L} g^{(k)}\right)
+        \]
+        \State Update $x^{(k+1)}$ using proximal operator:
+        \[
+        x^{(k+1)} = x_{\text{prox}}
+        \]
+        \State Check convergence: if $\lVert x^{(k+1)} - x^{(k)} \rVert_F < \texttt{tol}$, break
+    \EndFor
+    \State \textbf{Output:} $x^{(k+1)}$
+    \end{algorithmic}
+\end{algorithm}
+
 \subsection{\textbf{算法实现}}
+
+近似点梯度法考虑令 $\phi(x)=\frac{1}{2}\|Ax-b\|_F^2$，$h(x)=\mu\|x\|_{1,2}$，对光滑部分做梯度下降，并对非光滑部分使用近似点算子，得到迭代格式 $x_{k+1}=\text{prox}_{t_{k}h(\cdot)}(x_k-t_k\nabla\phi(x_k))$。
+
+在本项目求解的问题形式下，近似点算子可以解析地写出：
+\begin{figure*}
+    \begin{equation}\label{eq:prox}
+        \text{prox}_{t_{k}h(\cdot)}(x_k-t_k\nabla\phi(x_k)) = \begin{cases}
+            \frac{x_k-t_k\nabla\phi(x_k)}{1+t_k\mu} & \text{if } x_k-t_k\nabla\phi(x_k) \neq 0 \\
+            \text{any } v \in \mathbb{R}^l \text{ with } \lVert v \rVert_2 \leq 1 & \text{if } x_k-t_k\nabla\phi(x_k) = 0
+        \end{cases}
+    \end{equation}
+\end{figure*}
+
+\subsection{\textbf{Nesterov加速}}
+
+Nesterov加速是一种常用的加速方法，其思想是在迭代过程中，使用上一步的迭代结果来加速当前的迭代。其迭代格式为：
+$$
+x_{k+1} = y_k - \frac{1}{L} \nabla f(y_k)
+$$
+$$
+y_{k+1} = x_{k+1} + \frac{k}{k+3}(x_{k+1} - x_k)
+$$
+
+在本项目中，ProxGD 算法可以使用 Nesterov 加速，得到 FProxGD算法。但是在实践中，FProxGD 算法的收敛速度并没有比 ProxGD 算法更快，这可能是因为本项目使用连续化策略和BB步长更新策略，已经使得 ProxGD 算法的收敛速度较快，甚至使用 Nesterov 反而使得迭代步骤变多，从而使得收敛速度变慢。
+
+
 
 \subsection{\textbf{算法结果}}
 
-\section{\textbf{FProxGD次梯度算法}}
+由\tabref{tab:all}和\figref{fig:ProxGD}可知：
+\begin{itemize}
+    \item ProxGD算法的收敛速度较快，迭代次数较少，但是每次迭代的时间较长。FProxGD算法迭代次数多，但是单次迭代时间短，因此总用只比ProxGD算法多少许。
+    \item ProxGD算法和FProxGD算法最终收敛的目标函数值基本一致，得到的解也基本一致，几乎没有差别。
+\end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\columnwidth]{img/ProxGD.png}
+    {\centering \small \caption{ProxGD算法求解结果\label{fig:ProxGD}}}
+\end{figure}
 
 
+\section{\textbf{ALM算法和ADMM算法}}
 
+增广拉格朗日函数法（Augmented Lagrangian Method，ALM）是一种常用的求解带约束优化问题的方法，其思想是将原问题转化为无约束优化问题，通过增加拉格朗日乘子项来逼近原问题，从而求解原问题。
+
+交替方向乘子法（Alternating Direction Method of Multipliers，ADMM）其思想是将原问题转化为等价的两个子问题，然后交替求解这两个子问题，从而求解原问题。
+
+下面给出本项目中原问题的对偶问题ALM推导，对偶问题可写为：
+$$
+\begin{array}{cl}
+\min _z & \frac{1}{2}\|z\|_F^2+\langle b, z\rangle  \\
+\\
+\text { s.t } & \left\|A^T z\right\|_{\infty, 2} \leq \mu
+\end{array}
+$$  
+
+等价于：  
+$$
+\begin{array}{ll}
+\min _z & \frac{1}{2}\|z\|_F^2+\langle b, z\rangle \\
+\\
+\text { s.t } & \|s\|_{\infty, 2} \leq \mu, s=A^T z
+\end{array}
+$$  
+
+增广拉格朗日函数优化问题可写为：  
+$$
+\begin{aligned}
+\min _z & \frac{1}{2}\|z\|_F^2+\langle b, z\rangle-\left\langle\lambda, s-A^T z\right\rangle+\frac{\rho}{2}\left\|s-A^T z\right\|_F^2 \\
+\\
+\text { s.t } & \|s\|_{\infty, 2} \leq \mu
+\end{aligned}
+$$
+
+根据此式可进一步写出ALM和ADMM迭代流程（具体细节可见代码\texttt{gl\_ALM\_dual.py} 和 \texttt{gl\_ADMM\_dual.py} 和 \texttt{gl\_ADMM\_primal.py}）。
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\columnwidth]{img/ALM.png}
+    {\centering \small \caption{ALM算法求解结果\label{fig:ALM}}}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\columnwidth]{img/ADMM.png}
+    {\centering \small \caption{ADMM算法求解结果\label{fig:ADMM}}}
+\end{figure}
+
+可见，ALM算法收敛速度相当快，各项指标几乎是最优的。而ADMM算法在对偶问题上的收敛速度较快，但是原始问题上迭代次数较多，因此总用时较长。
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\columnwidth]{img/output.png}
+    {\centering \small \caption{所有算法得到的解\label{fig:output}}}
+\end{figure}
 
 \bibliographystyle{IEEEtran}
 \bibliography{main}
