@@ -11,6 +11,7 @@ def updateZ(ref, mu):
 
 def gl_ALM_dual(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu: float, opts:dict = {}):
     opts = utils.ALM_dual_optsInit(opts)    
+    utils.logger.info(f"optsOuter: \n{opts}")
     m, n = A.shape
     _, l = b.shape
     out = utils.outInit()
@@ -45,9 +46,9 @@ def gl_ALM_dual(x0: np.ndarray, A: np.ndarray, b: np.ndarray, mu: float, opts:di
     
     out['itr'] = k1 + 1
     out['fval'] = out['prim_hist'][-1]
-    utils.logger.info(f"ALM_dual: itr: {out['itr']}, fval: {out['fval']}")
-    utils.logger.info(f"ALM_dual: itr_inn: {out['itr_inn']}")
-    utils.logger.info(f"ALM_dual: len(out['prim_hist']): {len(out['prim_hist'])}")
+    utils.logger.debug(f"ALM_dual: itr: {out['itr']}, fval: {out['fval']}")
+    utils.logger.debug(f"ALM_dual: itr_inn: {out['itr_inn']}")
+    utils.logger.debug(f"ALM_dual: len(out['prim_hist']): {len(out['prim_hist'])}")
     out['iters'] = zip(range(out['itr']), out['prim_hist'])#, out['dual_hist'])
     # out['iters'] = zip(range(out['itr']), out['dual_hist'])
         
