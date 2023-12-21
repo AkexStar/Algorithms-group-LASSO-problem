@@ -3,6 +3,8 @@ import os
 import re
 import time
 import logging
+import time
+import importlib
 import numpy as np
 
 
@@ -93,25 +95,25 @@ def cleanUpLog():
             line.replace(r'\0', '')
 
 # 计算稀疏度
-def sparsity(x):
+def sparsity(x) -> float:
     # return np.sum(np.abs(x) > 1e-6 * np.max(np.abs(x))) / x.size
     return np.sum(np.abs(x) > 1e-5) / x.size
     # return np.sum(x <= 1e-5) / np.sum(np.ones_like(x))
 
 # 计算解之间的区别
-def errX(x, x0):
+def errX(x, x0) -> float:
     # return np.linalg.norm(x - u, ord='fro')
     # return np.linalg.norm(u - x, 'fro') / np.linalg.norm(u)
     return np.linalg.norm(x - x0, 'fro') / (1 + np.linalg.norm(x0, 'fro'))
 
 # 计算目标函数值
-def objFun(x, A, b, mu):
+def objFun(x, A, b, mu) -> float:
     # r = np.dot(A, x) - b
     # return 0.5 * np.linalg.norm(r, ord='fro') ** 2 + mu * np.sum(np.linalg.norm(x, ord=2, axis=1))
     return 0.5 * np.linalg.norm(A @ x - b, ord='fro') ** 2 + mu * np.sum(np.linalg.norm(x, ord=2, axis=1))
 
 # 计算目标函数值之间差的绝对值
-def errObj(obj, obj0):
+def errObj(obj, obj0) -> float:
     return np.abs(obj - obj0)
 
 # 邻近算子
@@ -134,6 +136,69 @@ def BBupdate(x, xp, g, gp, k, alpha):
         else:
             alpha = (dxg / np.sum(dg * dg))
     return max(min(alpha, 1e12), 1e-12)
+
+def testDataParams(opts0:dict = {}):
+    opts = {}
+    opts['seed'] = int(opts0.get("seed", 97108120)) # seed = ord("a") ord("l") ord("x")
+    opts['mu'] = float(opts0.get("mu", 1e-2))
+    opts['n'] = int(opts0.get("n", 512))
+    opts['m'] = int(opts0.get("m", 256))
+    opts['l'] = int(opts0.get("l", 2))
+    opts['r'] = float(opts0.get("r", 1e-1))
+    return opts
+
+# 生成测试数据
+def testData(opts:dict = {}):
+    opts = testDataParams(opts)
+    logger.info(f"testData opts: {opts}")
+    np.random.seed(opts['seed'])
+    m = opts['m']
+    n = opts['n']
+    l = opts['l']
+    r = opts['r']
+    mu = opts['mu']
+    A = np.random.randn(m, n)
+    k = round(n * r)
+    p = np.random.permutation(n)[:k]
+    u = np.zeros((n, l))
+    u[p, :] = np.random.randn(k, l)
+    b = A @ u
+    # x0 = u + np.random.rand(n, l) * 0.001
+    # x0 = np.zeros((n, l))
+    x0 = np.random.randn(n, l)
+    f_u = objFun(u, A, b, mu)
+    # sparsity_u = utils.sparsity(u)
+    return x0, A, b, mu, u, f_u
+
+def testSolver(x0, A, b, mu, opts:dict = {}):
+    # 获得求解器名称
+    solver_name = opts.get('solver_name', '')
+    if solver_name == '':
+        raise ValueError('opts参数字典中必须包含solver_name键值对，指定求解器名称')
+    # 检查求解器是否存在
+    try:
+        solver = getattr(importlib.import_module("src." + solver_name), solver_name)
+    except AttributeError:
+        logger.error(f"求解器{solver_name}不存在，跳过该求解器。")
+        return None, None, None
+    logger.info(f"\n--->Current Test Solver: {solver_name}<---")
+    # 取出求解器的参数
+    solver_opts = dict(opts.get(solver_name[3:], {}))
+    logger.info(f"solver_opts: {solver_opts}")
+    # 测试求解器并记录时间
+    tic = time.time()
+    x, iters_N, out = solver(x0, A, b, mu, solver_opts) 
+    toc = time.time()
+    time_cpu = toc - tic
+    cleanUpLog()
+    out['time_cpu'] = time_cpu
+    sparsity_x = sparsity(x)
+    out['sparsity_x'] = sparsity_x
+    logger.info(f"{solver_name[3:]} takes {time_cpu:.5f}s, with {iters_N} iters")
+    logger.debug(f"out['fval']: {out['fval']}")
+    logger.debug(f"sparsity_x: {sparsity_x}")
+    logger.debug(f"out['iters']: \n{out['iters']}")
+    return x, iters_N, out
 
 # 项目已经实现的所有求解器
 solversCollection = [
@@ -171,6 +236,12 @@ def SGD_primal_optsInit(opts0: dict = {}):
     
     opts['is_only_print_outer'] = bool(opts0.get('is_only_print_outer', False)) # 是否只打印外循环的信息
     opts['method'] = opts0.get('method', None) # 内循环使用的求解器
+
+    # 针对内循环的参数
+    opts['gamma'] = float(opts0.get('gamma', 0.9)) 
+    opts['rhols'] = float(opts0.get('rhols', 1e-6)) # 线搜索的参数
+    opts['eta'] = float(opts0.get('eta', 0.2)) # 线搜索的参数
+    opts['Q'] = float(opts0.get('Q', 1)) # 线搜索的参数
     return opts
 
 # 近似点梯度法默认参数
@@ -195,6 +266,9 @@ def ProxGD_primal_optsInit(opts0: dict = {}):
 
     # 针对内循环的参数
     opts['gamma'] = float(opts0.get('gamma', 0.85))
+    opts['rhols'] = float(opts0.get('rhols', 1e-6)) # 线搜索的参数
+    opts['eta'] = float(opts0.get('eta', 0.2)) # 线搜索的参数
+    opts['Q'] = float(opts0.get('Q', 1)) # 线搜索的参数
 
     return opts
 
@@ -220,6 +294,9 @@ def FProxGD_primal_optsInit(opts0: dict = {}):
 
     # 针对内循环的参数
     opts['gamma'] = float(opts0.get('gamma', 0.85))
+    opts['rhols'] = float(opts0.get('rhols', 1e-6)) # 线搜索的参数
+    opts['eta'] = float(opts0.get('eta', 0.2)) # 线搜索的参数
+    opts['Q'] = float(opts0.get('Q', 1)) # 线搜索的参数
 
     return opts
 
@@ -256,12 +333,20 @@ def optsInnerInit(opts: dict = {}):
     optsInner['ftol'] = float(opts.get('ftol', 1e-8)) # 针对函数值的停机判断条件 
     optsInner['gtol'] = float(opts.get('gtol', 1e-6)) # 针对梯度的停机判断条件
     optsInner['alpha0'] = float(opts.get('alpha0', 1)) #初始步长
-    optsInner['mu0'] = float(opts.get('mu0', 1e-2)) # 目标最小的mu0 便于连续化策略和内循环的求解器一起使用
     optsInner['gamma'] = float(opts.get('gamma', 0.9)) 
     optsInner['rhols'] = float(opts.get('rhols', 1e-6)) # 线搜索的参数
     optsInner['eta'] = float(opts.get('eta', 0.2)) # 线搜索的参数
     optsInner['Q'] = float(opts.get('Q', 1)) # 线搜索的参数
     return optsInner
+
+def printAllDefaultOpts():
+    print(f"testData: {testDataParams()}")
+    print(f"gl_SGD_primal: {SGD_primal_optsInit()}") # 次梯度法默认参数
+    print(f"gl_ProxGD_primal: {ProxGD_primal_optsInit()}") # 近似点梯度法默认参数
+    print(f"gl_FProxGD_primal: {FProxGD_primal_optsInit()}") # 快速近似梯度法默认参数
+    print(f"gl_ALM_dual: {ALM_dual_optsInit()}") # 增广拉格朗日函数法默认参数
+    print(f"gl_ADMM_dual: {ADMM_dual_optsInit()}") # 交换方向乘子法（对偶问题）默认参数
+    print(f"gl_ADMM_primal: {ADMM_primal_optsInit()}") # 交换方向乘子法（原问题）默认参数
 
 # 初始化【结果输出】
 def outInit():
