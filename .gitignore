@@ -1,4 +1,11 @@
 __pycache__
 /src/logs/*
 /.vscode/*
-*DS_Store
+*.DS_Store
+/doc/report/*.aux
+/doc/report/*.blg
+/doc/report/*.brf
+/doc/report/*.log
+/doc/report/*.bbl
+/doc/report/*.out
+/doc/report/*.synctex*
