@@ -152,23 +152,18 @@ def testData(opts:dict = {}):
     opts = testDataParams(opts)
     logger.info(f"testData opts: {opts}")
     np.random.seed(opts['seed'])
-    m = opts['m']
-    n = opts['n']
-    l = opts['l']
-    r = opts['r']
-    mu = opts['mu']
-    A = np.random.randn(m, n)
-    k = round(n * r)
-    p = np.random.permutation(n)[:k]
-    u = np.zeros((n, l))
-    u[p, :] = np.random.randn(k, l)
+    A = np.random.randn(opts['m'], opts['n'])
+    k = round(opts['n'] * opts['r'])
+    p = np.random.permutation(opts['n'])[:k]
+    u = np.zeros((opts['n'], opts['l']))
+    u[p, :] = np.random.randn(k, opts['l'])
     b = A @ u
     # x0 = u + np.random.rand(n, l) * 0.001
     # x0 = np.zeros((n, l))
-    x0 = np.random.randn(n, l)
-    f_u = objFun(u, A, b, mu)
+    x0 = np.random.randn(opts['n'], opts['l'])
+    f_u = objFun(u, A, b, opts['mu'])
     # sparsity_u = utils.sparsity(u)
-    return x0, A, b, mu, u, f_u
+    return x0, A, b, opts['mu'], u, f_u
 
 def testSolver(x0, A, b, mu, opts:dict = {}):
     # 获得求解器名称
@@ -329,6 +324,7 @@ def ADMM_primal_optsInit(opts0: dict = {}):
 # 初始化内循环（具体求解器）参数
 def optsInnerInit(opts: dict = {}):
     optsInner = {}
+    optsInner['mu0'] = float(opts.get('mu0', 1e-2)) # 目标最小的mu0 由于使用连续化策略，当前的 mu >= mu0
     optsInner['maxit_inn'] = int(opts.get('maxit_inn', 200)) # 内循环最大迭代次数 最大迭代次数，由 opts.maxit_inn 给出
     optsInner['ftol'] = float(opts.get('ftol', 1e-8)) # 针对函数值的停机判断条件 
     optsInner['gtol'] = float(opts.get('gtol', 1e-6)) # 针对梯度的停机判断条件

@@ -40,7 +40,9 @@ if __name__ == '__main__':
     utils.logger.info(f"log level: {args.log}")
 
     # 初始化测试数据
-    x0, A, b, mu, u, f_u = utils.testData(dict(opts.get('testData', {})))
+    dataOpts = dict(opts.get('testData', {}))
+    dataOpts['seed'] = args.seed
+    x0, A, b, mu, u, f_u = utils.testData(dataOpts)
     sparsity_u = utils.sparsity(u)
     utils.logger.debug(f"问题精确解的目标函数值f_u: {f_u}")
     utils.logger.debug(f"问题精确解的稀疏度sparsity_u: {sparsity_u}")
